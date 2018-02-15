@@ -12,6 +12,7 @@ https://github.com/Legedric/ptmagic/wiki
 - Powerful monitoring tool
 - Sales Analyzer tracking your sales and providing detailed overview of your profits
 - DCA Calculator to help you in adjusting your settings to your parameters
+- **FREE!**
 
 # Screenshots
 ![Dashboard](https://i.imgur.com/022JgWs.png)
