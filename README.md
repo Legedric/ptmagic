@@ -4,6 +4,9 @@ Your goto address for the most complete all-in-one addon for Profit Trailer.
 # Wiki
 https://github.com/Legedric/ptmagic/wiki
 
+# Download latest release
+https://github.com/Legedric/ptmagic/releases
+
 # Key Features
 - Automated setting switches based on market trends
 - Switches settings globally and single markets
