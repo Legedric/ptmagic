@@ -1,6 +1,14 @@
 # Profit Trailer Magic
 Your goto address for the most complete all-in-one addon for Profit Trailer.
 
+Define multiple individual Profit Trailer settings as **presets for different market conditions**. PTMagic will apply them automatically based on trends for **your trading pairs**.  
+
+Never run out of balance again when using DCA. The PTMagic **DCA calculator** helps you to find the perfect DCA values for your balance, pairs and DCA levels.  
+
+**Pump and Dump protection** works even for single trading pairs that act suspicious.  
+
+**Analyze your sales** to find the winners and losers in your trading pairs.
+
 # Wiki
 https://github.com/Legedric/ptmagic/wiki
 
