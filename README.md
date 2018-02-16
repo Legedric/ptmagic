@@ -41,3 +41,4 @@ By using or simply downloading Profit Trailer Magic you understand and accept th
 - Profit Trailer Magic is able to remove or limit any features at any time
 - Profit Trailer Magic may not be accounted for any loss of data or misbehaviour
 - Profit Trailer Magic does not own any data the program may have access to while it is running
+
