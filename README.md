@@ -19,6 +19,6 @@ https://github.com/Legedric/ptmagic/wiki
 
 ![Sales Analyzer](https://i.imgur.com/JbzrQvL.png)
 
-![Market Trends](https://i.imgur.com/XvESsen.png)
+![Market Trends](https://i.imgur.com/eDPq0Tp.png)
 
 ![DCA Calculator](https://i.imgur.com/GmcYu14.png)
