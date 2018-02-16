@@ -16,9 +16,9 @@ https://github.com/Legedric/ptmagic/wiki
 https://github.com/Legedric/ptmagic/releases
 
 # Key Features
-- Automated setting switches based on market trends
-- Switches settings globally and for single markets
-- Create and observe as many market trends as you want for whatever timeframes you may come up with
+- Observe your trading markets for different timeframes
+- Handle Profit Trailer settings based on market conditions
+- Handle single market exceptions (for example to protect you from pump & dumps)
 - Easy to use mechanism to set Profit Trailer settings by using PT's exact variable names
 - Powerful monitoring tool
 - Sales Analyzer tracking your sales and providing detailed overview of your profits
