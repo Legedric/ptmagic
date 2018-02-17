@@ -9,6 +9,10 @@ Your goto address for the most complete all-in-one addon for Profit Trailer.
 
 - **Analyze your sales** to find the winners and losers in your trading pairs.
 
+# How it works
+There is a short explanation in our Wiki.  
+https://github.com/Legedric/ptmagic/wiki/How-it-works
+
 # Wiki
 https://github.com/Legedric/ptmagic/wiki
 
