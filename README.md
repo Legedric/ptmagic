@@ -23,12 +23,12 @@ https://github.com/Legedric/ptmagic/releases
 
 # Key Features
 - Observe your trading markets for different timeframes
-- Handle Profit Trailer settings based on market conditions
+- Update Profit Trailer settings based on market conditions
 - Handle single market exceptions (for example to protect you from pump & dumps)
 - Easy to use mechanism to set Profit Trailer settings by using PT's exact variable names
 - Powerful monitoring tool
 - Sales Analyzer tracking your sales and providing detailed overview of your profits
-- DCA Calculator to help you in adjusting your settings to your parameters
+- DCA Calculator to help you in adjusting your settings to your needs
 - **It's FREE!**
 
 # Screenshots
