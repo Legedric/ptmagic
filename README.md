@@ -15,6 +15,8 @@ https://github.com/Legedric/ptmagic/wiki
 # Download latest release
 https://github.com/Legedric/ptmagic/releases
 
+**Important: Please do not install PTMagic if you are already running Profit Trailer Feeder. Both tool write to your bot .PROPERTIES files and there may be side effects.**
+
 # Key Features
 - Observe your trading markets for different timeframes
 - Handle Profit Trailer settings based on market conditions
