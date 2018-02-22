@@ -31,6 +31,18 @@ https://github.com/Legedric/ptmagic/releases
 - DCA Calculator to help you in adjusting your settings to your needs
 - **It's FREE!**
 
+
+## That's awesome! How can I support this project?
+To support our project PT Magic, just start your **PT Magic monitor** and navigate to **"Donate"** in the main menu. Or use these addresses directly:
+
+* BTC   3DqwGY5WefweUJH1Vu6N1zswjPKAbcHq9V
+* ETH   0x10340475Caadf570a3c29fe6CF0A0a5f69Ace2DB
+* LTC   MLxCR2GBxyFU5gGDYbp8QP3Aa3fjcQsCAX
+* NEO   ARdTEfJNfoQjjkL5dzWtmpNJMbbnGvY28s
+
+Of course we are **very happy for any donation** we receive to support this project and to keep us motivated to develop new features to make your and our own experience of using Profit Trailer even better.
+
+
 # Screenshots
 ![Dashboard](https://i.imgur.com/022JgWs.png)
 
