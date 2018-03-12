@@ -48,9 +48,9 @@ Of course we are **very happy for any donation** we receive to support this proj
 
 ![Sales Analyzer](https://i.imgur.com/JbzrQvL.png)
 
-![Market Trends](https://i.imgur.com/eDPq0Tp.png)
+![Market Trends](https://i.imgur.com/VdJe9sg.png)
 
-![DCA Calculator](https://i.imgur.com/GmcYu14.png)
+![DCA Calculator](https://i.imgur.com/2FA4SRL.png)
 
 # Disclaimer
 By using or simply downloading Profit Trailer Magic you understand and accept the following Terms of Use:  
