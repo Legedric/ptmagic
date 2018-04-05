@@ -44,13 +44,13 @@ Of course we are **very happy for any donation** we receive to support this proj
 
 
 # Screenshots
-![Dashboard](https://i.imgur.com/022JgWs.png)
+![Dashboard](http://www.profit-trailer-magic.com/assets/img-temp/mockups/dashboard.png)
 
-![Sales Analyzer](https://i.imgur.com/JbzrQvL.png)
+![Sales Analyzer](http://www.profit-trailer-magic.com/assets/img-temp/mockups/salesanalyzer.png)
 
-![Market Trends](https://i.imgur.com/VdJe9sg.png)
+![Market Trends](http://www.profit-trailer-magic.com/assets/img-temp/mockups/markettrends.png)
 
-![DCA Calculator](https://i.imgur.com/2FA4SRL.png)
+![DCA Calculator](http://www.profit-trailer-magic.com/assets/img-temp/mockups/dcacalculator.png)
 
 # Disclaimer
 By using or simply downloading Profit Trailer Magic you understand and accept the following Terms of Use:  
