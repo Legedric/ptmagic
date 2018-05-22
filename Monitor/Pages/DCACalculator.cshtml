@@ -1,0 +1,248 @@
+﻿@page
+@model DCACalculatorModel
+@{
+  ViewData["Title"] = "";
+}
+
+@section Styles {
+
+}
+
+@{
+  string maxCostCaption = "Max";
+  if (Model.Summary.ProfitTrailerMajorVersion > 1) {
+    maxCostCaption = "Initial";
+  }
+}
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card-box">
+      <h4 class="m-t-0 header-title">DCA Calculator</h4>
+
+      <p class="m-b-20">
+        Use this calculator to help building a proper setup for your Profit Trailer settings for <b>ALL_max_trading_pairs</b>, <b>ALL_@maxCostCaption.ToLower()_cost</b> and <b>DCA levels</b>.<br />
+        To do so enter your available balance and adjust the values to whatever you consider the best setting for your parameters.<br />
+        If you are having problems understanding the different modes, <a href="https://github.com/Legedric/ptmagic/wiki/DCA-Calculator" target="_blank">please read this wiki article</a>.
+      </p>
+
+      @if (Model.PTMagicConfiguration.GeneralSettings.Monitor.DefaultDCAMode.Equals("simple", StringComparison.InvariantCultureIgnoreCase)) {
+        <div class="row m-b-20">
+          <div class="col-md-6"><button type="button" class="btn btn-block btn-dca-mode btn-lg btn-ptmagic btn-dca-mode-active waves-effect waves-light" data-dca-mode="simple">Simple Mode</button></div>
+          <div class="col-md-6"><button type="button" class="btn btn-block btn-dca-mode btn-lg btn-ptmagic btn-custom waves-effect waves-light" data-dca-mode="advanced">Advanced Mode</button></div>
+        </div>
+      } else {
+        <div class="row m-b-20">
+          <div class="col-md-6"><button type="button" class="btn btn-block btn-dca-mode btn-lg btn-ptmagic btn-custom waves-effect waves-light" data-dca-mode="simple">Simple Mode</button></div>
+          <div class="col-md-6"><button type="button" class="btn btn-block btn-dca-mode btn-lg btn-ptmagic btn-dca-mode-active waves-effect waves-light" data-dca-mode="advanced">Advanced Mode</button></div>
+        </div>
+      }
+      <div class="row">
+        <div class="col-md-6">
+          In <i>simple mode</i> the DCA calculator will only take your number of pairs, DCA levels and initial cost and will calculate the necessary fundings for you. In this mode the ANDERSON method is quite inaccurate as it will calculate the DCA steps by <b>using the the simple proportional cost</b> for each DCA level, regardless of what level the price may be at the time the DCA buy will happen.
+        </div>
+        <div class="col-md-6">
+          In <i>advanced mode</i> the DCA calculator will also take your DCA triggers into account for the calculation of the necessary fundings for you. In this mode the ANDERSON method is being calculated more accurate as it will calculate the necessary costs using your buy triggers to calculate the actual <b>cost of coins at the current price</b> according to your triggers and percentages.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="card-box">
+      <div class="form-group row">
+        <label class="col-md-4 col-form-label">Total Balance <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Value is being read from your settings and added with your total profit so far."></i></label>
+        <div class="col-md-8">
+          <input type="text" id="dca-capital" class="dca-input form-control" value="@Model.PTData.GetCurrentBalance().ToString("0.00000000", new System.Globalization.CultureInfo("en-US"))">
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <label class="col-md-4 col-form-label">Number of Pairs <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Value is being read from your PAIRS.PROPERTIES"></i></label>
+        <div class="col-md-8">
+          <input type="text" id="dca-pairs" class="dca-input form-control" value="@Model.Summary.MaxTradingPairs"><input type="hidden" id="dca-maxpairs" value="@Model.PTMagicConfiguration.GeneralSettings.Monitor.MaxDCAPairs">
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <label class="col-md-4 col-form-label">DCA Levels <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Value is being read from your DCA.PROPERTIES"></i></label>
+        <div class="col-md-8">
+          <input type="text" id="dca-levels" class="dca-input form-control" value="@Model.Summary.DCALevels">
+        </div>
+      </div>
+
+      @{
+        double maxCostValue = Model.Summary.MaxCost;
+        if (maxCostValue == 0) {
+          maxCostValue = Model.Summary.MaxCostPercentage;
+        }
+      }
+
+      <div class="form-group row">
+        <label class="col-md-4 col-form-label">@maxCostCaption Cost <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Value is being read from your PAIRS.PROPERTIES"></i></label>
+        <div class="col-md-5">
+          <input type="text" id="dca-max-cost" class="dca-input form-control" value="@maxCostValue.ToString(new System.Globalization.CultureInfo("en-US"))">
+        </div>
+        <div class="col-md-3">
+          <select id="dca-max-cost-type" class="dca-input form-control">
+            @if (Model.Summary.MaxCost > 0) {
+              <option value="1" selected="selected">Value</option>
+            } else {
+              <option value="1">Value</option>
+            }
+            @if (Model.Summary.MaxCostPercentage > 0 && Model.Summary.MaxCost == 0) {
+              <option value="2" selected="selected">Percent</option>
+            } else {
+              <option value="2">Percent</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card-box" style="min-height:250px;">
+      <p id="dca-noresult"><i>Please enter a valid balance value on the left to calculate results...</i></p>
+
+      <table id="dca-result-table" class="table table-striped" style="display:none;">
+        <tbody>
+          <tr>
+            <td>Cost Per Pair</td>
+            <td class="text-right"><span id="dca-cost-pair"></span></td>
+          </tr>
+          <tr>
+            <td>Total Balance Needed</td>
+            <td class="text-right"><span id="dca-capital-needed"></span></td>
+          </tr>
+          <tr>
+            <td>Result</td>
+            <td class="text-right"><span id="dca-result"></span></td>
+          </tr>
+          <tr>
+            <td>Balance Extended %</td>
+            <td class="text-right"><span id="dca-result-percent"></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="row-dca-triggers" class="row @if (Model.PTMagicConfiguration.GeneralSettings.Monitor.DefaultDCAMode.Equals("simple", StringComparison.InvariantCultureIgnoreCase)) { <text>hidden</text> }">
+  <div class="col-md-12">
+    <div class="card-box">
+      <h4 class="m-t-0 header-title">DCA Triggers <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Your DCA buy triggers set in your DCA.PROPERTIES"></i></h4>
+
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>DCA Level</th>
+            <th class="text-right">Trigger %</th>
+            <th class="text-right">Buy %</th>
+            <th class="text-right">Approx. Drop %</th>
+            <th class="text-right">Simple Cost / Pair</th>
+            <th class="text-right">Advanced Cost / Pair</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>0</td>
+            <td class="dca-trigger-0 text-right text-autocolor" data-triggervalue="@Model.Summary.BuyValue.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"))">@Model.Summary.BuyValue.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"))%</td>
+            <td class="dca-percentage-0 text-right"></td>
+            <td class="dca-drop-1-0 text-right text-autocolor"></td>
+            <td class="dca-1-0-simp text-right"></td>
+            <td class="dca-1-0-adv text-right"></td>
+          </tr>
+          @for (int l = 1; l <= (int)Model.Summary.DCALevels; l++) {
+            double dcaPercentage = Model.Summary.DCAPercentage;
+            if (Model.Summary.DCAPercentages.ContainsKey(l)) {
+              dcaPercentage = Model.Summary.DCAPercentages[l];
+            }
+
+            double dcaTrigger = Model.Summary.DCATrigger;
+            if (Model.Summary.DCATriggers.ContainsKey(l)) {
+              dcaTrigger = Model.Summary.DCATriggers[l];
+            }
+            <tr>
+              <td>@l</td>
+              <td class="dca-trigger-@l text-right text-autocolor" data-triggervalue="@dcaTrigger.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"))">@dcaTrigger.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"))%</td>
+              <td class="dca-percentage-@l text-right" data-percentagevalue="@dcaPercentage.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"))">@dcaPercentage.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"))%</td>
+              <td class="dca-drop-1-@l text-right text-autocolor"></td>
+              <td class="dca-1-@l-simp text-right"></td>
+              <td class="dca-1-@l-adv text-right"></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+@{
+  int maxDCALevels = 12;
+  if (Model.Summary.DCALevels > maxDCALevels) {
+    maxDCALevels = (int)Model.Summary.DCALevels;
+  }
+}
+<div class="row">
+  <div class="col-md-12">
+    <div class="card-box">
+      <h4 class="m-t-0 header-title">DCA Overview</h4>
+      <div class="table-scroll-hori">
+        <table class="table table-sm table-striped">
+          <thead>
+            <tr>
+              <th class="text-right"></th>
+              @for (int col = 1; col <= maxDCALevels; col++) {
+                <th class="text-right">DCA @col</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (int row = 1; row <= Model.PTMagicConfiguration.GeneralSettings.Monitor.MaxDCAPairs; row++) {
+              <tr>
+                <th>@row Pairs</th>
+                @for (int col = 1; col <= maxDCALevels; col++) {
+                  <td class="dca-@row-@col text-right"></td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/js/dca.js?v=@Html.Raw(Model.Summary.Version)"></script>
+
+  <script type="text/javascript">
+    $(function () {
+      $('.dca-input').trigger('input');
+
+      $('.btn-dca-mode').click(function () {
+        var mode = $(this).data('dca-mode');
+
+        $('.btn-dca-mode').removeClass('btn-dca-mode-active');
+        $('.btn-dca-mode').addClass('btn-custom');
+        $(this).removeClass('btn-custom');
+        $(this).addClass('btn-dca-mode-active');
+
+        if (mode == 'advanced') {
+          $('#row-dca-triggers').removeClass('hidden');
+
+        } else {
+          if (!$('#row-dca-triggers').hasClass('hidden')) {
+            $('#row-dca-triggers').addClass('hidden');
+          }
+        }
+
+        $('.dca-input').trigger('input');
+      });
+    })
+  </script>
+}

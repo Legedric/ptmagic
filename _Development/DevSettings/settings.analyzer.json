@@ -1,0 +1,355 @@
+{
+  "AnalyzerSettings": {
+    "MarketAnalyzer": {
+      "StoreDataMaxHours": 24, // Number of hours to store market data
+      "IntervalMinutes": 1, // Interval in minutes for PTMagic to check market trends and triggers
+      "ExcludeMainCurrency": true, // Excludes the main currency (for example BTC) from market trend analysis
+      "MarketTrends": [
+        {
+          "Name": "CMC24h", // UNIQUE market trend name (to be referenced by your triggers below)
+          "Platform": "CoinMarketCap", // Platform to grab prices from (Allowed values are: CoinMarketCap, Exchange)
+          "MaxMarkets": 50, // Number of markets/pairs to analyze sorted by 24h volume
+          "TrendMinutes": 1440 // Number of minutes to build a trend (1440 = 24h, 720 = 12h, 60 = 1h)
+        },
+        {
+          "Name": "Exchange1h",
+          "Platform": "Exchange",
+          "MaxMarkets": 50,
+          "TrendMinutes": 60,
+          "TrendCurrency": "Market" // Trend Currency to build the trend against. If set to "Fiat", the trend will take the USD value of your main currency into account to build the trend. (Allowed values are: Fiat, Market)
+        },
+        {
+          "Name": "Exchange12h",
+          "Platform": "Exchange",
+          "MaxMarkets": 50,
+          "TrendMinutes": 720,
+          "TrendCurrency": "Market"
+        },
+        {
+          "Name": "Exchange24h",
+          "Platform": "Exchange",
+          "MaxMarkets": 50,
+          "TrendMinutes": 1440,
+          "TrendCurrency": "Market"
+        }
+      ]
+    },
+    "GlobalSettings": [ // Global settings for Profit Trailer properties
+      {
+        "SettingName": "EndOfTheWorld", // UNIQUE name of your setting
+        "TriggerConnection": "AND", // Define if triggers will be connected by AND or OR
+        "Triggers": [ // Your triggers for this setting
+          {
+            "MarketTrendName": "Exchange12h", // Reference to the market trend specified above
+            "MaxChange": -1 // Maximum trend change % for this setting to get triggered
+          },
+          {
+            "MarketTrendName": "Exchange24h",
+            "MaxChange": -5
+          }
+        ],
+        "PairsProperties": { // Properties for PAIRS.PROPERTIES
+          "DEFAULT_sell_only_mode_enabled": true
+        },
+        "DCAProperties": { // Properties for DCA.PROPERTIES
+        }
+      },
+      {
+        "SettingName": "Default",
+        "PairsProperties": {
+          "File": "PAIRS.PROPERTIES"
+        },
+        "DCAProperties": {
+          "File": "DCA.PROPERTIES"
+        },
+        "IndicatorsProperties": {
+          "File": "INDICATORS.PROPERTIES"
+        }
+      }
+    ],
+    "SingleMarketSettings": [ // Single market/pair settings for Profit Trailer properties
+      {
+        "SettingName": "BlacklistNewCoins",
+        "StopProcessWhenTriggered": true,
+        "Triggers": [
+          {
+            "AgeDaysLowerThan": 14
+          }
+        ],
+        "PairsProperties": {
+          "DEFAULT_trading_enabled": false,
+          "DEFAULT_sell_only_mode_enabled": true,
+          "DEFAULT_DCA_enabled": false
+        }
+      },
+      {
+        "SettingName": "PumpNDumpProtection",
+        "TriggerConnection": "OR",
+        "OffTriggerConnection": "OR",
+        "StopProcessWhenTriggered": true,
+        "Triggers": [
+          {
+            "MarketTrendName": "Exchange1h",
+            "MarketTrendRelation": "Relative", // The relation of the single market trend. Relative = Single market trend compared relative to the market trend / Absolute = Single market trend viewn on its own
+            "MinChange": 5
+          },
+          {
+            "MarketTrendName": "Exchange12h",
+            "MarketTrendRelation": "Relative",
+            "MinChange": 7
+          },
+          {
+            "MarketTrendName": "Exchange24h",
+            "MarketTrendRelation": "Relative",
+            "MinChange": 7
+          }
+        ],
+        "OffTriggers": [
+          {
+            "MarketTrendName": "Exchange1h",
+            "MarketTrendRelation": "RelativeTrigger",
+            "MaxChange": -4
+          },
+          {
+            "MarketTrendName": "Exchange12h",
+            "MarketTrendRelation": "RelativeTrigger",
+            "MaxChange": -5
+          },
+          {
+            "MarketTrendName": "Exchange24h",
+            "MarketTrendRelation": "RelativeTrigger",
+            "MaxChange": -5
+          },
+          {
+            "HoursSinceTriggered": 48
+          }
+        ],
+        "PairsProperties": {
+          "DEFAULT_sell_only_mode_enabled": true,
+          "DEFAULT_DCA_enabled": false
+        }
+      },
+      {
+        "SettingName": "FreefallBlock",
+        "TriggerConnection": "OR",
+        "OffTriggerConnection": "OR",
+        "StopProcessWhenTriggered": true,
+        "Triggers": [
+          {
+            "MarketTrendName": "Exchange1h",
+            "MarketTrendRelation": "Absolute",
+            "MaxChange": -8
+          }
+        ],
+        "OffTriggers": [
+          {
+            "MarketTrendName": "Exchange1h",
+            "MarketTrendRelation": "RelativeTrigger",
+            "MinChange": 6
+          },
+          {
+            "HoursSinceTriggered": 24
+          }
+        ],
+        "PairsProperties": {
+          "DEFAULT_trailing_profit_OFFSETPERCENT": -10,
+          "DEFAULT_A_sell_value_OFFSETPERCENT": -50,
+          "DEFAULT_sell_only_mode_enabled": true,
+          "DEFAULT_DCA_enabled": false
+        }
+      },
+      {
+        "SettingName": "StraightToHell",
+        "TriggerConnection": "AND",
+        "StopProcessWhenTriggered": true,
+        "Triggers": [
+          {
+            "MarketTrendName": "Exchange1h",
+            "MarketTrendRelation": "Absolute",
+            "MaxChange": -1
+          },
+          {
+            "MarketTrendName": "Exchange12h",
+            "MarketTrendRelation": "Absolute",
+            "MaxChange": -3
+          },
+          {
+            "MarketTrendName": "Exchange24h",
+            "MarketTrendRelation": "Absolute",
+            "MaxChange": -5
+          }
+        ],
+        "PairsProperties": {
+          "DEFAULT_sell_only_mode_enabled": true,
+          "DEFAULT_trailing_profit_OFFSETPERCENT": -75,
+          "DEFAULT_A_sell_value_OFFSETPERCENT": -50
+        },
+        "DCAProperties": {
+          "DEFAULT_DCA_trailing_profit_OFFSETPERCENT": -75,
+          "DEFAULT_DCA_A_sell_value_OFFSETPERCENT": -50
+        }
+      },
+      {
+        "SettingName": "StrongDownTrend",
+        "TriggerConnection": "AND",
+        "StopProcessWhenTriggered": true,
+        "Triggers": [
+          {
+            "MarketTrendName": "Exchange1h",
+            "MarketTrendRelation": "Absolute",
+            "MaxChange": 1
+          },
+          {
+            "MarketTrendName": "Exchange12h",
+            "MarketTrendRelation": "Absolute",
+            "MaxChange": 0
+          },
+          {
+            "MarketTrendName": "Exchange24h",
+            "MarketTrendRelation": "Absolute",
+            "MaxChange": -3,
+            "MinChange": -5
+          }
+        ],
+        "PairsProperties": {
+          "DEFAULT_A_buy_value_OFFSETPERCENT": -100,
+          "DEFAULT_B_buy_value_OFFSETPERCENT": -15,
+          "DEFAULT_trailing_buy_OFFSETPERCENT": 20,
+          "DEFAULT_trailing_profit_OFFSETPERCENT": -75,
+          "DEFAULT_A_sell_value_OFFSETPERCENT": -30
+        },
+        "DCAProperties": {
+          "DEFAULT_DCA_trailing_buy_OFFSETPERCENT": -75,
+          "DEFAULT_DCA_A_sell_value_OFFSETPERCENT": -30
+        }
+      },
+      {
+        "SettingName": "WeakDownTrend",
+        "TriggerConnection": "AND",
+        "StopProcessWhenTriggered": true,
+        "Triggers": [
+          {
+            "MarketTrendName": "Exchange1h",
+            "MarketTrendRelation": "Absolute",
+            "MaxChange": 1
+          },
+          {
+            "MarketTrendName": "Exchange12h",
+            "MarketTrendRelation": "Absolute",
+            "MaxChange": 0
+          },
+          {
+            "MarketTrendName": "Exchange24h",
+            "MarketTrendRelation": "Absolute",
+            "MaxChange": -1,
+            "MinChange": -3
+          }
+        ],
+        "PairsProperties": {
+          "DEFAULT_A_buy_value_OFFSETPERCENT": -50,
+          "DEFAULT_B_buy_value_OFFSETPERCENT": -7,
+          "DEFAULT_trailing_profit_OFFSETPERCENT": -50,
+          "DEFAULT_A_sell_value_OFFSETPERCENT": -20
+        },
+        "DCAProperties": {
+          "DEFAULT_DCA_trailing_profit_OFFSETPERCENT": -50,
+          "DEFAULT_DCA_A_sell_value_OFFSETPERCENT": -20
+        }
+      },
+      {
+        "SettingName": "WeakUpTrend",
+        "TriggerConnection": "AND",
+        "StopProcessWhenTriggered": true,
+        "Triggers": [
+          {
+            "MarketTrendName": "Exchange1h",
+            "MarketTrendRelation": "Absolute",
+            "MinChange": -1
+          },
+          {
+            "MarketTrendName": "Exchange12h",
+            "MarketTrendRelation": "Absolute",
+            "MinChange": 0
+          },
+          {
+            "MarketTrendName": "Exchange24h",
+            "MarketTrendRelation": "Absolute",
+            "MinChange": 1,
+            "MaxChange": 3
+          }
+        ],
+        "PairsProperties": {
+          "DEFAULT_A_buy_value_OFFSETPERCENT": 10,
+          "DEFAULT_B_buy_value_OFFSETPERCENT": 10,
+          "DEFAULT_A_sell_value_OFFSETPERCENT": 20
+        },
+        "DCAProperties": {
+          "DEFAULT_DCA_A_sell_value_OFFSETPERCENT": 20
+        }
+      },
+      {
+        "SettingName": "StrongUpTrend",
+        "TriggerConnection": "AND",
+        "StopProcessWhenTriggered": true,
+        "Triggers": [
+          {
+            "MarketTrendName": "Exchange1h",
+            "MarketTrendRelation": "Absolute",
+            "MinChange": -1
+          },
+          {
+            "MarketTrendName": "Exchange12h",
+            "MarketTrendRelation": "Absolute",
+            "MinChange": 1
+          },
+          {
+            "MarketTrendName": "Exchange24h",
+            "MarketTrendRelation": "Absolute",
+            "MinChange": 3,
+            "MaxChange": 5
+          }
+        ],
+        "PairsProperties": {
+          "DEFAULT_A_buy_value_OFFSETPERCENT": 30,
+          "DEFAULT_B_buy_value_OFFSETPERCENT": 30,
+          "DEFAULT_trailing_buy_OFFSETPERCENT": -50,
+          "DEFAULT_A_sell_value_OFFSETPERCENT": 30
+        },
+        "DCAProperties": {
+          "DEFAULT_DCA_A_sell_value_OFFSETPERCENT": 30
+        }
+      },
+      {
+        "SettingName": "ToTheMoon",
+        "TriggerConnection": "AND",
+        "StopProcessWhenTriggered": true,
+        "Triggers": [
+          {
+            "MarketTrendName": "Exchange1h",
+            "MarketTrendRelation": "Absolute",
+            "MinChange": 0
+          },
+          {
+            "MarketTrendName": "Exchange12h",
+            "MarketTrendRelation": "Absolute",
+            "MinChange": 1
+          },
+          {
+            "MarketTrendName": "Exchange24h",
+            "MarketTrendRelation": "Absolute",
+            "MinChange": 5
+          }
+        ],
+        "PairsProperties": {
+          "DEFAULT_A_buy_value_OFFSETPERCENT": 30,
+          "DEFAULT_B_buy_value_OFFSETPERCENT": 30,
+          "DEFAULT_trailing_buy_OFFSETPERCENT": -50,
+          "DEFAULT_A_sell_value_OFFSETPERCENT": 40
+        },
+        "DCAProperties": {
+          "DEFAULT_DCA_A_sell_value_OFFSETPERCENT": 40
+        }
+      }
+    ]
+  }
+}

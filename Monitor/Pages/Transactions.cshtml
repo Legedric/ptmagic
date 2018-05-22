@@ -1,0 +1,174 @@
+﻿@page
+@model TransactionsModel
+@{
+  ViewData["Title"] = "";
+}
+
+@section Styles {
+  <link href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/tablesaw/css/tablesaw.css" rel="stylesheet" type="text/css" />
+  <link href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet">
+  <link href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/clockpicker/css/bootstrap-clockpicker.min.css" rel="stylesheet">
+}
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card-box">
+      <h4 class="m-t-0 header-title">Transactions</h4>
+
+      <p>
+        In this area you may add manual transactions (like deposits and withdrawals) to your PT Magic data. Adding this kind of information will help PT Magic calculating your percentage gains and your balance more accurately.
+      </p>
+    </div>
+  </div>
+</div>
+
+<form class="form-horizontal m-t-20" method="post">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card-box">
+        <h4 class="m-t-0 header-title">New Transaction</h4>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Amount <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The amount of your transaction. Positive numbers for deposits and negative numbers for withdrawals."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="Transaction_Amount">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Date <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The date of your transaction."></i></label>
+          <div class="col-md-8">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="mm/dd/yyyy" id="datepicker-autoclose" name="Transaction_Date">
+              <span class="input-group-addon bg-custom b-0"><i class="md md-event-note text-dark"></i></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Time <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The time of your transaction."></i></label>
+          <div class="col-md-8">
+            <div class="input-group clockpicker m-b-20" data-placement="top" data-align="top" data-autoclose="true">
+              <input type="text" class="form-control" name="Transaction_Time">
+              <span class="input-group-addon"> <span class="md md-access-time"></span> </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label"></label>
+          <div class="col-md-8">
+            <button class="btn btn-ptmagic btn-block text-uppercase waves-effect waves-light" type="submit">
+              Save Transaction
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (!Model.ValidationMessage.Equals("")) {
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card-box text-danger">
+          @Model.ValidationMessage
+        </div>
+      </div>
+    </div>
+  }
+</form>
+
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card-box">
+      <h4 class="m-t-0 header-title">Your Transactions</h4>
+
+      @if (Model.TransactionData.Transactions.Count > 0) {
+        <table class="tablesaw table m-b-0" data-tablesaw-sortable data-tablesaw-sortable-switch>
+          <thead>
+            <tr>
+              <th></th>
+              <th scope="col" data-tablesaw-sortable-col data-tablesaw-sortable-default-col>Time</th>
+              <th scope="col" data-tablesaw-sortable-col class="text-right">Amount</th>
+              <th scope="col" data-tablesaw-sortable-col>Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (Core.Main.DataObjects.PTMagicData.Transaction transaction in Model.TransactionData.Transactions) {
+              <tr>
+                <td style="width:20px;"><a href="#" class="btn-remove" data-transactionguid="@transaction.GUID"><i class="fa fa-remove text-danger"></i></a></td>
+                <td>@transaction.GetLocalDateTime(Model.PTMagicConfiguration.GeneralSettings.Application.TimezoneOffset).ToShortDateString() @transaction.GetLocalDateTime(Model.PTMagicConfiguration.GeneralSettings.Application.TimezoneOffset).ToShortTimeString()</td>
+                <td class="text-right text-autocolor">@transaction.Amount.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+                @if (transaction.Amount > 0) {
+                  <td class="text-success">Deposit</td>
+                } else {
+                  <td class="text-danger">Withdrawal</td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      } else {
+        <p>No transactions found.</p>
+      }
+    </div>
+  </div>
+</div>
+
+
+
+@section Scripts {
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/tablesaw/js/tablesaw.js"></script>
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/tablesaw/js/tablesaw-init.js"></script>
+
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/clockpicker/js/bootstrap-clockpicker.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+      $('.text-autocolor').autocolor(false);
+
+      jQuery('#datepicker-autoclose').datepicker({
+        weekStart: 1,
+        autoclose: true,
+        todayHighlight: true
+      });
+
+      $('.clockpicker').clockpicker({
+        donetext: 'Done'
+      });
+
+      @if (!Model.NotifyType.Equals("") && !Model.NotifyHeadline.Equals("") && !Model.NotifyMessage.Equals("")) {
+        <text>
+        $.Notification.notify('@Model.NotifyType', 'top left', '@Model.NotifyHeadline', '@Model.NotifyMessage');
+        </text>
+      }
+
+      $('.btn-remove').click(function () {
+        var tGuid = $(this).data('transactionguid');
+        var postData = { Transaction_GUID: tGuid };
+        $.ajax({
+          type: 'POST',
+          url: "@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)_post/RemoveTransaction",
+          contentType: "application/json; charset=utf-8",
+          dataType: "json",
+          data: JSON.stringify(postData),
+          beforeSend: function (xhr) {
+            xhr.setRequestHeader("XSRF-TOKEN",
+              $('input:hidden[name="__RequestVerificationToken"]').val());
+          },
+          success: function (data) {
+            $.Notification.notify('success', 'top left', 'Transaction removed!', 'Transaction "' + tGuid + '" was successfully removed.');
+            window.location = window.location.href;
+          },
+          error: function (jqxhr, errorText, thrownError) {
+            $.Notification.notify('error', 'top left', 'Error removing transaction "' + tGuid + '"!', 'Error message: ' + errorText);
+          }
+        });
+        return false;
+      });
+    });
+  </script>
+}

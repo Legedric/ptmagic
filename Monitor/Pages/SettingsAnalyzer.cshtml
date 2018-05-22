@@ -1,0 +1,357 @@
+﻿@page
+@model SettingsAnalyzerModel
+@{ ViewData["Title"] = "";
+}
+
+@section Styles {
+  <link href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/switchery/css/switchery.min.css" rel="stylesheet" />
+}
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card-box">
+      <h4 class="m-t-0 header-title">Analyzer Settings<span></span></h4>
+
+      <p>
+        In this area you may change the settings of your <b>settings.analyzer.json</b> file. Please use this with caution as all settings you saved here will directly affect your PT Magic bot.
+      </p>
+      <p class="text-danger">Please note: When you save your settings using this interface, all existing comments will be removed from your settings.analyzer.json!</p>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-4">
+    <div class="card-box">
+      <h4 class="m-t-0 header-title">Restore Backup <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="PT Magic automatically creates a backup when you save your settings.analyzer.json file using this interface. In case you notice some suspicious behaviour or just want to go back to your previous settings, you may restore the most recent backup here."></i></h4>
+
+      <p>
+        You messed up your settings?<br />Restore your backup!
+      </p>
+
+      <button class="btn btn-ptmagic text-uppercase waves-effect waves-light" data-toggle="modal" data-target="#modalRestoreBackup" type="submit">
+        Restore Backup
+      </button>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card-box">
+      <h4 class="m-t-0 header-title">Download Settings</h4>
+
+      <p>
+        Want to save or share your settings?<br />Download them!
+      </p>
+
+      <a class="btn btn-ptmagic text-uppercase waves-effect waves-light" href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)_get/DownloadFile?f=settings.analyzer.json">
+        Download Settings
+      </a>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card-box">
+      <h4 class="m-t-0 header-title">Upload Settings</h4>
+
+      <p>
+        Found some settings somewhere?<br />Upload them!
+      </p>
+
+      <button class="btn btn-ptmagic btn-custom text-uppercase waves-effect waves-light">
+        Coming soon...
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card-box">
+      <div class="row">
+        <div class="col-md-4">
+          <h4 class="m-t-0 header-title">Market Trends (@Model.PTMagicConfiguration.AnalyzerSettings.MarketAnalyzer.MarketTrends.Count)</h4>
+
+          <ul>
+            @foreach (Core.Main.DataObjects.PTMagicData.MarketTrend mt in Model.PTMagicConfiguration.AnalyzerSettings.MarketAnalyzer.MarketTrends) {
+              <li><a href="#MarketTrend_@Core.Helper.SystemHelper.StripBadCode(mt.Name, Core.Main.Constants.WhiteListNames)">@Core.Helper.SystemHelper.SplitCamelCase(mt.Name)</a></li>
+            }
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <h4 class="m-t-0 header-title">Global Settings (@Model.PTMagicConfiguration.AnalyzerSettings.GlobalSettings.Count)</h4>
+
+          <ul>
+            @foreach (Core.Main.DataObjects.PTMagicData.GlobalSetting gs in Model.PTMagicConfiguration.AnalyzerSettings.GlobalSettings) {
+              <li><a href="#GlobalSetting_@Core.Helper.SystemHelper.StripBadCode(gs.SettingName, Core.Main.Constants.WhiteListNames)">@Core.Helper.SystemHelper.SplitCamelCase(gs.SettingName)</a></li>
+            }
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <h4 class="m-t-0 header-title">Single Market Settings (@Model.PTMagicConfiguration.AnalyzerSettings.SingleMarketSettings.Count)</h4>
+
+          <ul>
+            @foreach (Core.Main.DataObjects.PTMagicData.SingleMarketSetting sms in Model.PTMagicConfiguration.AnalyzerSettings.SingleMarketSettings) {
+              <li><a href="#SingleMarketSetting_@Core.Helper.SystemHelper.StripBadCode(sms.SettingName, Core.Main.Constants.WhiteListNames)">@Core.Helper.SystemHelper.SplitCamelCase(sms.SettingName)</a></li>
+            }
+          </ul>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-4">
+          <button class="btn btn-ptmagic btn-custom btn-block text-uppercase waves-effect waves-light btn-new" data-datatype="MarketTrend">
+            Add Market Trend
+          </button>
+        </div>
+        <div class="col-md-4">
+          <div class="btn-group btn-block">
+            <button class="btn btn-ptmagic btn-custom  btn-block text-uppercase waves-effect waves-light dropdown-toggle" data-toggle="dropdown">
+              Add Global Setting
+            </button>
+            <div class="dropdown-menu">
+              @foreach (Core.Main.DataObjects.PTMagicData.GlobalSetting gs in Model.PTMagicConfiguration.AnalyzerSettings.GlobalSettings) {
+                <a class="dropdown-item btn-new" data-datatype="GlobalSetting" data-datatarget="@Core.Helper.SystemHelper.StripBadCode(gs.SettingName, Core.Main.Constants.WhiteListNames)">Add before <i>@Core.Helper.SystemHelper.SplitCamelCase(gs.SettingName)</i></a>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="btn-group btn-block">
+            <button class="btn btn-ptmagic btn-custom  btn-block text-uppercase waves-effect waves-light dropdown-toggle" data-toggle="dropdown">
+              Add Single Market Setting
+            </button>
+            <div class="dropdown-menu">
+              @foreach (Core.Main.DataObjects.PTMagicData.SingleMarketSetting sms in Model.PTMagicConfiguration.AnalyzerSettings.SingleMarketSettings) {
+                <a class="dropdown-item btn-new" data-datatype="SingleMarketSetting" data-datadirection="before" data-datatarget="@Core.Helper.SystemHelper.StripBadCode(sms.SettingName, Core.Main.Constants.WhiteListNames)">Add before <i>@Core.Helper.SystemHelper.SplitCamelCase(sms.SettingName)</i></a>
+              }
+              <div class="dropdown-divider"></div>
+              @foreach (Core.Main.DataObjects.PTMagicData.SingleMarketSetting sms in Model.PTMagicConfiguration.AnalyzerSettings.SingleMarketSettings) {
+                <a class="dropdown-item btn-new" data-datatype="SingleMarketSetting" data-datadirection="after" data-datatarget="@Core.Helper.SystemHelper.StripBadCode(sms.SettingName, Core.Main.Constants.WhiteListNames)">Add after <i>@Core.Helper.SystemHelper.SplitCamelCase(sms.SettingName)</i></a>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form class="form-horizontal" method="post">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card-box">
+        <h4 class="m-t-0 header-title">Market Analyzer</h4>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Store Data Max Hours <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Number of hours to store market data."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="MarketAnalyzer_StoreDataMaxHours" value="@Model.PTMagicConfiguration.AnalyzerSettings.MarketAnalyzer.StoreDataMaxHours.ToString()">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Interval Minutes <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Interval in minutes for PTMagic to check market trends and triggers."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="MarketAnalyzer_IntervalMinutes" value="@Model.PTMagicConfiguration.AnalyzerSettings.MarketAnalyzer.IntervalMinutes.ToString()">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Exclude Main Currency <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Excludes the main currency (for example BTC) from market trend analysis."></i></label>
+          <div class="col-md-8">
+            <input type="checkbox" name="MarketAnalyzer_ExcludeMainCurrency" checked="@(Model.PTMagicConfiguration.AnalyzerSettings.MarketAnalyzer.ExcludeMainCurrency)" data-plugin="switchery" data-color="#81c868" data-size="small" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="MarketAnalyzer_MarketTrends">
+    @if (Model.PTMagicConfiguration.AnalyzerSettings.MarketAnalyzer.MarketTrends.Count > 0) {
+      @foreach (Core.Main.DataObjects.PTMagicData.MarketTrend mt in Model.PTMagicConfiguration.AnalyzerSettings.MarketAnalyzer.MarketTrends) {
+        <div class="settings-markettrend" data-trendname="@Core.Helper.SystemHelper.StripBadCode(mt.Name, Core.Main.Constants.WhiteListNames)" data-rooturl="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>
+      }
+    } else {
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card-box">
+            No Market Trends found!
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div id="MarketAnalyzer_GlobalSettings">
+    @if (Model.PTMagicConfiguration.AnalyzerSettings.GlobalSettings.Count > 0) {
+      @foreach (Core.Main.DataObjects.PTMagicData.GlobalSetting gs in Model.PTMagicConfiguration.AnalyzerSettings.GlobalSettings) {
+        <div class="settings-globalsetting" data-settingname="@Core.Helper.SystemHelper.StripBadCode(gs.SettingName, Core.Main.Constants.WhiteListNames)" data-rooturl="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>
+      }
+    } else {
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card-box">
+            No Global Settings found!
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div id="MarketAnalyzer_SingleMarketSettings">
+    @if (Model.PTMagicConfiguration.AnalyzerSettings.SingleMarketSettings.Count > 0) {
+      @foreach (Core.Main.DataObjects.PTMagicData.SingleMarketSetting sms in Model.PTMagicConfiguration.AnalyzerSettings.SingleMarketSettings) {
+        <div class="settings-singlemarketsetting" data-settingname="@Core.Helper.SystemHelper.StripBadCode(sms.SettingName, Core.Main.Constants.WhiteListNames)" data-rooturl="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>
+      }
+    } else {
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card-box">
+            No Single Market Settings found!
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div id="div-loading-settings" class="row">
+    <div class="col-md-12">
+      <div class="card-box">
+        <span class="btn btn-danger btn-custom btn-block text-uppercase waves-effect waves-light">
+          <i class="fa fa-circle-o-notch fa-spin fa-fw"></i> Loading settings, please wait...
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div id="div-save-settings" class="row hidden">
+    <div class="col-md-12">
+      <div class="card-box">
+        <a class="btn btn-ptmagic btn-block text-uppercase waves-effect waves-light" data-toggle="modal" data-target="#modalSaveSettings" href="#">
+          Save Settings
+        </a>
+      </div>
+    </div>
+  </div>
+</form>
+
+<!-- Modal -->
+<div class="modal fade" id="modalRestoreBackup" tabindex="-1" role="dialog" aria-labelledby="modalRestoreBackupTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalRestoreBackupTitle">Are you sure?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Do you really want to restore a backup of your settings.analyzer.json and overwrite all current settings?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ptmagic text-uppercase waves-effect waves-light btn-restorebackup" data-datatarget="settings.analyzer.json">Yes, do it!</button>
+        <button type="button" class="btn btn-secondary text-uppercase" data-dismiss="modal">No...</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modalSaveSettings" tabindex="-1" role="dialog" aria-labelledby="modalSaveSettingsTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalSaveSettingsTitle">Are you sure?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Do you really want to save the current settings?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ptmagic text-uppercase waves-effect waves-light btn-savesettings">Yes, do it!</button>
+        <button type="button" class="btn btn-secondary text-uppercase" data-dismiss="modal">No...</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/switchery/js/switchery.min.js"></script>
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/js/analyzer-settings.js?v=@Html.Raw(Model.Summary.Version)"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+      $('.text-autocolor').autocolor(false);
+      $('.settings-markettrend').buildMarketTrendSettings();
+      $('.settings-globalsetting').buildGlobalSettings();
+      $('.settings-singlemarketsetting').buildSingleMarketSettings();
+
+      $('.btn-new').click(function () {
+        var dataType = $(this).data('datatype');
+        var dataTarget = $(this).data('datatarget');
+        var dataDirection = $(this).data('datadirection');
+
+        switch (dataType) {
+          case 'MarketTrend':
+            $('#MarketAnalyzer_MarketTrends').append('<div class="settings-markettrend new" data-trendname="" data-rooturl="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
+            $('html, body').scrollTop($('#MarketAnalyzer_MarketTrends').offset().top + $('#MarketAnalyzer_MarketTrends').height() - 100);
+            $('.settings-markettrend.new').buildMarketTrendSettings();
+            break;
+          case 'GlobalSetting':
+            $('html, body').scrollTop($('#MarketAnalyzer_GlobalSettings > [data-settingname="' + dataTarget + '"]').offset().top - 100);
+            $('#MarketAnalyzer_GlobalSettings > [data-settingname="' + dataTarget + '"]').before('<div class="settings-globalsetting new" data-settingname="" data-rooturl="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
+            $('.settings-globalsetting.new').buildGlobalSettings();
+            break;
+          case 'SingleMarketSetting':
+            if (dataDirection === 'before') {
+              $('html, body').scrollTop($('#MarketAnalyzer_SingleMarketSettings > [data-settingname="' + dataTarget + '"]').offset().top - 100);
+              $('#MarketAnalyzer_SingleMarketSettings > [data-settingname="' + dataTarget + '"]').before('<div class="settings-singlemarketsetting new" data-settingname="" data-rooturl="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
+            } else {
+              $('html, body').scrollTop($('#MarketAnalyzer_SingleMarketSettings > [data-settingname="' + dataTarget + '"]').offset().top + $('#MarketAnalyzer_SingleMarketSettings > [data-settingname="' + dataTarget + '"]').height() - 100);
+              $('#MarketAnalyzer_SingleMarketSettings > [data-settingname="' + dataTarget + '"]').after('<div class="settings-singlemarketsetting new" data-settingname="" data-rooturl="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
+            }
+            $('.settings-singlemarketsetting.new').buildSingleMarketSettings();
+            break;
+        }
+        return false;
+      });
+
+      $(document).on('click', '.btn-savesettings', function () {
+        $('form').submit();
+      });
+
+      $('.btn-restorebackup').click(function () {
+        var dataTarget = $(this).data('datatarget');
+
+        var postValues = { File: dataTarget };
+        $.ajax({
+          type: 'POST',
+          url: "@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)_post/RestoreBackup",
+          contentType: "application/json; charset=utf-8",
+          dataType: "json",
+          data: JSON.stringify(postValues),
+          beforeSend: function (xhr) {
+            xhr.setRequestHeader("XSRF-TOKEN",
+              $('input:hidden[name="__RequestVerificationToken"]').val());
+          },
+          success: function (data) {
+            window.location.replace("@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)SettingsAnalyzer?n=BackupRestored");
+          },
+          error: function (jqxhr, errorText, thrownError) {
+            $.Notification.notify('error', 'top left', 'Error restoring backup!', 'Error message: ' + errorText);
+          }
+        });
+
+        return false;
+      });
+
+      @if (!Model.NotifyType.Equals("") && !Model.NotifyHeadline.Equals("") && !Model.NotifyMessage.Equals("")) {
+        <text>
+        $.Notification.notify('@Model.NotifyType', 'top left', '@Model.NotifyHeadline', '@Model.NotifyMessage');
+        window.history.pushState('@Model.PTMagicConfiguration.GeneralSettings.Application.InstanceName Monitor', '@Model.PTMagicConfiguration.GeneralSettings.Application.InstanceName Monitor', '@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)SettingsAnalyzer');
+        </text>
+      }
+    });
+  </script>
+}

@@ -1,0 +1,62 @@
+﻿@page
+@model TickerWidgetsModel
+@{
+  Layout = null;
+
+  int activeSingleSettings = Model.MarketsWithSingleSettings.Count;
+  string singleSettingInfoIcon = "";
+  if (activeSingleSettings > 0) {
+    singleSettingInfoIcon = "<i class=\"fa fa-info-circle text-muted\" data-toggle=\"tooltip\" data-placement=\"top\" data-html=\"true\" title=\"<b>Single Market Settings active for:</b><br />-" + Core.Helper.SystemHelper.ConvertListToTokenString(Model.MarketsWithSingleSettings, "<br />-", true) + "\" data-template=\"<div class='tooltip' role='tooltip'><div class='tooltip-arrow'></div><div class='tooltip-inner tooltip-200 text-left'></div></div>\"></i>";
+  }
+
+  double currentBalance = Model.PTData.GetCurrentBalance();
+  string currentBalanceString = currentBalance.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"));
+  if (currentBalance > 100) {
+    currentBalanceString = Math.Round(currentBalance, 2).ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"));
+  }
+
+  DateTime lastRuntime = Model.Summary.LastRuntime;
+  double elapsedSecondsSinceRuntime = DateTime.Now.Subtract(lastRuntime).TotalSeconds;
+  double intervalSeconds = Model.PTMagicConfiguration.AnalyzerSettings.MarketAnalyzer.IntervalMinutes * 60.0;
+
+  string iconColor = "text-success";
+  string ptMagicHealthIcon = "fa-heartbeat";
+  string ptMagicHealthTooltip = "PT Magic is alive and healthy!";
+  if (elapsedSecondsSinceRuntime > (intervalSeconds + intervalSeconds * 0.2)) {
+    ptMagicHealthIcon = "fa-exclamation-triangle";
+    ptMagicHealthTooltip = "PT Magic seems to have problems, check the logs!";
+    iconColor = "text-danger";
+  }
+}
+
+@if (!Model.Summary.MainMarket.Equals("USDT", StringComparison.InvariantCultureIgnoreCase)) {
+<div class="card-box card-box-mini card-box-warning-outlined" data-toggle="tooltip" data-placement="bottom" title="Value of a single @Model.Summary.MainMarket">
+  <b>@Model.Summary.MainMarket: </b>@Html.Raw(Model.MainFiatCurrencySymbol + Model.Summary.MainMarketPrice.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US")))
+</div>
+}
+
+<div class="card-box card-box-mini card-box-success-outlined" data-toggle="tooltip" data-placement="bottom" title="Approximate total value in @Model.Summary.MainMarket">
+  <b>TV:</b> @currentBalanceString @Model.Summary.MainMarket
+</div>
+
+<div class="card-box card-box-mini card-box-ptmagic-outlined" data-toggle="tooltip" data-placement="bottom" title="Active global setting">
+  <b>GS:</b> @Core.Helper.SystemHelper.SplitCamelCase(Model.Summary.CurrentGlobalSetting.SettingName)
+</div>
+
+<div class="card-box card-box-mini card-box-ptmagic-outlined" data-toggle="tooltip" data-placement="bottom" title="Active single market settings">
+  <b>SMS:</b> <a href="ManageSMS">@Html.Raw(singleSettingInfoIcon)</a> @activeSingleSettings
+</div>
+
+<div class="card-box card-box-mini card-box-ptmagic-status-outlined @iconColor" data-toggle="tooltip" data-placement="bottom" title="@ptMagicHealthTooltip">
+  <b>PTM: </b><i class="fa @ptMagicHealthIcon @iconColor"></i>
+</div>
+
+<script type="text/javascript">
+  (function ($) {
+    'use strict';
+    $('[role="tooltip"]').remove();
+    $('[data-toggle="tooltip"]').tooltip();
+    $('.text-autocolor').autocolor(false);
+  })(jQuery);
+
+</script>

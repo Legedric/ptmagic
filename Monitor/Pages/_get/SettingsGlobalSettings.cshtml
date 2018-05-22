@@ -1,0 +1,210 @@
+﻿@page
+@model SettingsGlobalSettingsModel
+@{
+  Layout = null;
+}
+<div id="GlobalSetting_@Model.SettingName">
+  <a name="GlobalSetting_@Model.SettingName"></a>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card-box">
+        @if (!Model.GlobalSetting.SettingName.Equals("")) {
+          <h4 class="m-t-0 m-b-20 header-title">
+            Global Setting "<span class="text-ptmagic">@Model.GlobalSetting.SettingName</span>"
+            @if (!Model.GlobalSetting.SettingName.StartsWith("Default", StringComparison.InvariantCultureIgnoreCase)) {
+              <button class="btn btn-ptmagic text-uppercase waves-effect waves-light btn-sort btn-xs pull-right btn-move-GS btn-move-GS@(Model.SettingName)" data-datadirection="down" data-datatarget="GlobalSetting_@Model.SettingName" data-toggle="tooltip" data-placement="top" title="Move down"><i class="fa fa-chevron-down"></i></button>
+              <button class="btn btn-ptmagic text-uppercase waves-effect waves-light btn-sort btn-xs pull-right btn-move-GS btn-move-GS@(Model.SettingName) m-r-5" data-datadirection="up" data-datatarget="GlobalSetting_@Model.SettingName" data-toggle="tooltip" data-placement="top" title="Move up"><i class="fa fa-chevron-up"></i></button>
+            }
+          </h4>
+        } else {
+          <h4 class="m-t-0 header-title">New Global Setting</h4>
+        }
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Setting Name (Unique) <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="UNIQUE name of your setting"></i></label>
+          <div class="col-md-8">
+            @if (!Model.GlobalSetting.SettingName.StartsWith("Default", StringComparison.InvariantCultureIgnoreCase)) {
+              <input type="text" class="form-control" name="MarketAnalyzer_GlobalSetting_@(Model.SettingName)|SettingName" value="@Core.Helper.SystemHelper.StripBadCode(Model.GlobalSetting.SettingName, Core.Main.Constants.WhiteListNames)">
+              <span class="help-block"><small>Allowed characters: Letters, Numbers and '_'</small></span>
+            } else {
+              <input type="hidden" class="form-control" name="MarketAnalyzer_GlobalSetting_@(Model.SettingName)|SettingName" value="@Core.Helper.SystemHelper.StripBadCode(Model.GlobalSetting.SettingName, Core.Main.Constants.WhiteListNames)">
+              @Model.GlobalSetting.SettingName
+            }
+          </div>
+        </div>
+
+        @if (!Model.GlobalSetting.SettingName.StartsWith("Default", StringComparison.InvariantCultureIgnoreCase)) {
+          <div class="form-group row">
+            <label class="col-md-4 col-form-label">Trigger Connection <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Define if triggers will be connected by AND or OR"></i></label>
+            <div class="col-md-8">
+              <select name="MarketAnalyzer_GlobalSetting_@(Model.SettingName)|TriggerConnection" class="form-control">
+                <option selected="@(Model.GlobalSetting.TriggerConnection.Equals("AND", StringComparison.InvariantCultureIgnoreCase))">AND</option>
+                <option selected="@(Model.GlobalSetting.TriggerConnection.Equals("OR", StringComparison.InvariantCultureIgnoreCase))">OR</option>
+              </select>
+            </div>
+          </div>
+
+          <hr />
+
+          <h5 class="header-title m-b-20">Triggers (@Model.GlobalSetting.Triggers.Count)</h5>
+          <div id="MarketAnalyzer_GlobalSetting_@(Model.SettingName)_Triggers"></div>
+
+          <button id="btn-new-standardtrigger-GS@(Model.SettingName)" class="btn btn-ptmagic btn-custom  btn-block text-uppercase waves-effect waves-light m-b-20" data-datatarget="MarketAnalyzer_GlobalSetting_@(Model.SettingName)_Triggers">
+            Add Trigger
+          </button>
+        }
+
+        <hr />
+
+        <h5 class="header-title m-b-20">Pairs Properties (@Model.GlobalSetting.PairsProperties.Count)</h5>
+        <div id="MarketAnalyzer_GlobalSetting_@(Model.SettingName)_PairsProperties"></div>
+
+        <button id="btn-new-pairs-property-GS@(Model.SettingName)" class="btn btn-ptmagic btn-custom  btn-block text-uppercase waves-effect waves-light m-b-20" data-datatarget="MarketAnalyzer_GlobalSetting_@(Model.SettingName)_PairsProperties">
+          Add Property
+        </button>
+
+        <hr />
+
+        <h5 class="header-title m-b-20">DCA Properties (@Model.GlobalSetting.DCAProperties.Count)</h5>
+        <div id="MarketAnalyzer_GlobalSetting_@(Model.SettingName)_DCAProperties"></div>
+        <button id="btn-new-dca-property-GS@(Model.SettingName)" class="btn btn-ptmagic btn-custom  btn-block text-uppercase waves-effect waves-light m-b-20" data-datatarget="MarketAnalyzer_GlobalSetting_@(Model.SettingName)_DCAProperties">
+          Add Property
+        </button>
+
+        <hr />
+
+        <h5 class="header-title m-b-20">Indicators Properties (@Model.GlobalSetting.IndicatorsProperties.Count)</h5>
+        <div id="MarketAnalyzer_GlobalSetting_@(Model.SettingName)_IndicatorsProperties"></div>
+
+        <button id="btn-new-indicators-property-GS@(Model.SettingName)" class="btn btn-ptmagic btn-custom  btn-block text-uppercase waves-effect waves-light m-b-20" data-datatarget="MarketAnalyzer_GlobalSetting_@(Model.SettingName)_IndicatorsProperties">
+          Add Property
+        </button>
+
+        <button class="btn btn-danger m-t-20 btn-block text-uppercase waves-effect waves-light btn-remove-GS@(Model.SettingName)" data-datatarget="GlobalSetting_@Model.SettingName">
+          Remove Global Setting "@Model.GlobalSetting.SettingName"
+        </button>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript">
+    function BindRemoveParentRow@(Model.SettingName)Event() {
+      $('.btn-remove-parentrow-GlobalSetting-@(Model.SettingName)').click(function () {
+        $(this).closest('.row').animate({ height: 0 }, 300, function () {
+          $(this).remove();
+        });
+
+        return false;
+      });
+    }
+
+    $(document).ready(function () {
+      
+    $('#MarketAnalyzer_GlobalSetting_@(Model.SettingName)_Triggers').html([
+      @foreach (Core.Main.DataObjects.PTMagicData.Trigger t in Model.GlobalSetting.Triggers) {
+        string minChangeValue = t.MinChange.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"));
+        if (t.MinChange == Core.Main.Constants.MinTrendChange) {
+          minChangeValue = "";
+        }
+
+        string maxChangeValue = t.MaxChange.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"));
+        if (t.MaxChange == Core.Main.Constants.MaxTrendChange) {
+          maxChangeValue = "";
+        }
+        <text>
+      { settingType: 'GlobalSetting', settingName: '@(Model.SettingName)', trendName: '@Core.Helper.SystemHelper.StripBadCode(t.MarketTrendName, Core.Main.Constants.WhiteListNames)', minChange: '@minChangeValue', maxChange: '@maxChangeValue', marketTrends: '@Html.Raw(Model.GetMarketTrendSelection(t))' },
+        </text>
+      }
+    ].map(GSStandardTriggerTemplate).join(''));
+
+    $('#MarketAnalyzer_GlobalSetting_@(Model.SettingName)_PairsProperties').html([
+      @foreach (KeyValuePair<string, object> property in Model.GlobalSetting.PairsProperties) {
+        string propertyKeySimple = property.Key.Replace("_OFFSETPERCENT", "").Replace("_OFFSET", "");
+        <text>
+      { settingType: 'GlobalSetting', settingName: '@(Model.SettingName)', propertyType: 'Pairs', propertyKeySimple: '@propertyKeySimple', value: '@Core.Helper.SystemHelper.PropertyToString(property.Value)', valueModes: '@Html.Raw(Model.GetValueModes(property.Key))' },
+        </text>
+      }
+    ].map(PropertyTemplate).join(''));
+
+    $('#MarketAnalyzer_GlobalSetting_@(Model.SettingName)_DCAProperties').html([
+      @foreach (KeyValuePair<string, object> property in Model.GlobalSetting.DCAProperties) {
+        string propertyKeySimple = property.Key.Replace("_OFFSETPERCENT", "").Replace("_OFFSET", "");
+        <text>
+      { settingType: 'GlobalSetting', settingName: '@(Model.SettingName)', propertyType: 'DCA', propertyKeySimple: '@propertyKeySimple', value: '@Core.Helper.SystemHelper.PropertyToString(property.Value)', valueModes: '@Html.Raw(Model.GetValueModes(property.Key))' },
+        </text>
+      }
+    ].map(PropertyTemplate).join(''));
+
+    $('#MarketAnalyzer_GlobalSetting_@(Model.SettingName)_IndicatorsProperties').html([
+      @foreach (KeyValuePair<string, object> property in Model.GlobalSetting.IndicatorsProperties) {
+        string propertyKeySimple = property.Key.Replace("_OFFSETPERCENT", "").Replace("_OFFSET", "");
+        <text>
+      { settingType: 'GlobalSetting', settingName: '@(Model.SettingName)', propertyType: 'Indicators', propertyKeySimple: '@propertyKeySimple', value: '@Core.Helper.SystemHelper.PropertyToString(property.Value)', valueModes: '@Html.Raw(Model.GetValueModes(property.Key))' },
+        </text>
+      }
+    ].map(PropertyTemplate).join(''));
+
+
+    $('#btn-new-standardtrigger-GS@(Model.SettingName)').click(function () {
+      var dataTarget = $(this).data('datatarget');
+      $('#' + dataTarget).append([{ settingType: 'GlobalSetting', settingName: '@(Model.SettingName)', trendName: '', minChange: '', maxChange: '', marketTrends: '@Html.Raw(Model.GetMarketTrendSelection(null))' }].map(GSStandardTriggerTemplate).join(''));
+      $(document).ready(function () { BindRemoveParentRow@(Model.SettingName)Event(); });
+      return false;
+    });
+
+    $('#btn-new-pairs-property-GS@(Model.SettingName)').click(function () {
+      var dataTarget = $(this).data('datatarget');
+      $('#' + dataTarget).append([{ settingType: 'GlobalSetting', settingName: '@(Model.SettingName)', propertyType: 'Pairs', propertyKeySimple: '', value: '', valueModes: '@Html.Raw(Model.GetValueModes(""))' }].map(PropertyTemplate).join(''));
+      $(document).ready(function () { BindRemoveParentRow@(Model.SettingName)Event(); });
+      return false;
+    });
+
+    $('#btn-new-dca-property-GS@(Model.SettingName)').click(function () {
+      var dataTarget = $(this).data('datatarget');
+      $('#' + dataTarget).append([{ settingType: 'GlobalSetting', settingName: '@(Model.SettingName)', propertyType: 'DCA', propertyKeySimple: '', value: '', valueModes: '@Html.Raw(Model.GetValueModes(""))' }].map(PropertyTemplate).join(''));
+      $(document).ready(function () { BindRemoveParentRow@(Model.SettingName)Event(); });
+      return false;
+    });
+
+    $('#btn-new-indicators-property-GS@(Model.SettingName)').click(function () {
+      var dataTarget = $(this).data('datatarget');
+      $('#' + dataTarget).append([{ settingType: 'GlobalSetting', settingName: '@(Model.SettingName)', propertyType: 'Indicators', propertyKeySimple: '', value: '', valueModes: '@Html.Raw(Model.GetValueModes(""))' }].map(PropertyTemplate).join(''));
+      $(document).ready(function () { BindRemoveParentRow@(Model.SettingName)Event(); });
+      return false;
+    });
+
+    $('.btn-remove-GS@(Model.SettingName)').click(function () {
+      var dataTarget = $(this).data('datatarget');
+
+      $('#' + dataTarget).animate({ height: 0 }, 300, function () {
+        $(this).remove();
+      });
+
+      return false;
+    });
+
+    $('.btn-move-GS@(Model.SettingName)').click(function () {
+      checkedGSButtons = false;
+      var dataTarget = $(this).data('datatarget');
+      var dataDirection = $(this).data('datadirection');
+
+      var currentElement = $('#' + dataTarget).closest('.settings-globalsetting');
+
+      var prevElement = $(currentElement).prev('.settings-globalsetting');
+      var nextElement = $(currentElement).next('.settings-globalsetting');
+
+      if (dataDirection === 'down') {
+        $(currentElement).insertAfter($(nextElement));
+        $('html, body').scrollTop($(currentElement).offset().top - 100);
+      } else if (dataDirection === 'up') {
+        $(currentElement).insertBefore($(prevElement));
+        $('html, body').scrollTop($(currentElement).offset().top - 100);
+      }
+      checkGSMoveButtons();
+
+      return false;
+    });
+
+    BindRemoveParentRow@(Model.SettingName)Event();
+  });
+  </script>
+</div>

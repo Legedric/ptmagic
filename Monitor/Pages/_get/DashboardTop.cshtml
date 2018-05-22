@@ -1,0 +1,175 @@
+﻿@page
+@model DashboardTopModel
+@{
+  Layout = null;
+}
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="card-box">
+      <h4 class="m-t-0 m-b-20 header-title"><b>Possible Buys (@Model.PTData.BuyLog.Count)</b><small id="buylist-refresh-icon"></small><small class="pull-right"><a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)BuyAnalyzer">more</a></small></h4>
+      @if (Model.PTData.BuyLog.Count == 0) {
+
+        <p>Your Profit Trailer did not find anything worth buying so far.</p>
+
+      } else {
+        <table class="table table-sm m-b-0">
+          <thead>
+            <tr>
+              <th>Market</th>
+              <th data-toggle="tooltip" data-placement="top" title="Current profit percentage">Buy Strategies</th>
+              <th class="text-right" data-toggle="tooltip" data-placement="top" title="Current ask price for this market">Ask Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (Core.Main.DataObjects.PTMagicData.BuyLogData buyLogEntry in Model.PTData.BuyLog.OrderByDescending(b => b.IsTrailing).ThenBy(b => b.CurrentValue).Take(Model.PTMagicConfiguration.GeneralSettings.Monitor.MaxDashboardBuyEntries)) {
+              Core.Main.DataObjects.PTMagicData.MarketPairSummary mps = null;
+              if (Model.Summary.MarketSummary.ContainsKey(buyLogEntry.Market)) {
+                mps = Model.Summary.MarketSummary[buyLogEntry.Market];
+              }
+
+              bool isTrailingBuyActive = buyLogEntry.IsTrailing;
+              if (buyLogEntry.BuyStrategies.Count > 0) {
+                isTrailingBuyActive = (buyLogEntry.BuyStrategies.FindAll(bs => !bs.IsTrailing) == null);
+              }
+
+              bool buyDisabled = false;
+              string buyStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, buyLogEntry.BuyStrategies, buyLogEntry.BuyStrategy, isTrailingBuyActive);
+              if (!Core.ProfitTrailer.StrategyHelper.IsValidStrategy(buyStrategyText, true)) {
+                buyDisabled = true;
+              }
+
+              <tr>
+                @if (mps == null || mps.ActiveSingleSettings == null || mps.ActiveSingleSettings.Count == 0) {
+                  <th class="align-top"><a href="@Core.Helper.SystemHelper.GetMarketLink(Model.PTMagicConfiguration.GeneralSettings.Monitor.LinkPlatform,Model.PTMagicConfiguration.GeneralSettings.Application.Exchange, buyLogEntry.Market, Model.Summary.MainMarket)" target="_blank">@buyLogEntry.Market</a></th>
+                } else {
+                  <th class="align-top"><a href="@Core.Helper.SystemHelper.GetMarketLink(Model.PTMagicConfiguration.GeneralSettings.Monitor.LinkPlatform,Model.PTMagicConfiguration.GeneralSettings.Application.Exchange, buyLogEntry.Market, Model.Summary.MainMarket)" target="_blank">@buyLogEntry.Market</a> <i class="fa fa-exclamation-triangle text-highlight" data-toggle="tooltip" data-placement="top" data-html="true" title="@await Component.InvokeAsync("PairIcon", mps)" data-template="<div class='tooltip' role='tooltip'><div class='tooltip-arrow'></div><div class='tooltip-inner pair-tooltip'></div></div>"></i></th>
+                }
+                @if (buyDisabled) {
+                  <td>@Html.Raw(buyStrategyText)</td>
+                } else {
+                  <td>@Html.Raw(buyStrategyText)</td>
+                }
+                <td class="text-right">@buyLogEntry.CurrentPrice.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        @if (Model.PTData.BuyLog.Count > Model.PTMagicConfiguration.GeneralSettings.Monitor.MaxDashboardBuyEntries) {
+          <p class="text-right"><small><i class="fa fa-info-circle"></i> @Model.PTMagicConfiguration.GeneralSettings.Monitor.MaxDashboardBuyEntries of @Model.PTData.BuyLog.Count items listed - <a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)BuyAnalyzer">View all items</a></small></p>
+        }
+      }
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card-box">
+      <h4 class="m-t-0 m-b-20 header-title"><b>Pairs & DCA (@Model.PTData.DCALog.Count)</b><small id="baglist-refresh-icon"></small><small class="pull-right"><a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)BagAnalyzer">more</a></small></h4>
+
+      @if (Model.PTData.DCALog.Count == 0) {
+
+        <p>Your Profit Trailer did not buy anything so far that's worth analyzing.</p>
+
+      } else {
+
+        <table class="table table-sm m-b-0">
+          <thead>
+            <tr>
+              <th>Market</th>
+              <th class="text-right" data-toggle="tooltip" data-placement="top" title="Current DCA level">DCA</th>
+              <th data-toggle="tooltip" data-placement="top" title="Active buy strategies">Buy Strats</th>
+              <th data-toggle="tooltip" data-placement="top" title="Active sell strategies">Sell Strats</th>
+              <th class="text-right" data-toggle="tooltip" data-placement="top" title="Current profit percentage">Profit</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (Core.Main.DataObjects.PTMagicData.DCALogData dcaLogEntry in Model.PTData.DCALog.OrderByDescending(d => d.ProfitPercent).Take(Model.PTMagicConfiguration.GeneralSettings.Monitor.MaxDashboardBagEntries)) {
+              Core.Main.DataObjects.PTMagicData.MarketPairSummary mps = null;
+              if (Model.Summary.MarketSummary.ContainsKey(dcaLogEntry.Market)) {
+                mps = Model.Summary.MarketSummary[dcaLogEntry.Market];
+              }
+
+              bool dcaEnabled = true;
+              if (mps != null) {
+                dcaEnabled = mps.IsDCAEnabled;
+              }
+
+              bool isTrailingBuyActive = dcaLogEntry.IsTrailing;
+              if (dcaLogEntry.BuyStrategies.Count > 0) {
+                isTrailingBuyActive = (dcaLogEntry.BuyStrategies.FindAll(bs => !bs.IsTrailing) == null);
+              }
+
+              bool isTrailingSellActive = false;
+              if (dcaLogEntry.SellStrategies.Count > 0) {
+                isTrailingSellActive = (dcaLogEntry.SellStrategies.FindAll(ss => !ss.IsTrailing) == null);
+              }
+
+              bool buyDisabled = false;
+              string buyStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, dcaLogEntry.BuyStrategies, dcaLogEntry.BuyStrategy, isTrailingBuyActive);
+              if (!Core.ProfitTrailer.StrategyHelper.IsValidStrategy(buyStrategyText, true)) {
+                buyDisabled = true;
+              }
+
+              string sellStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, dcaLogEntry.SellStrategies, dcaLogEntry.SellStrategy, isTrailingSellActive);
+
+              <tr>
+                @if (mps == null || mps.ActiveSingleSettings == null || mps.ActiveSingleSettings.Count == 0) {
+                  <th class="align-top"><a href="@Core.Helper.SystemHelper.GetMarketLink(Model.PTMagicConfiguration.GeneralSettings.Monitor.LinkPlatform,Model.PTMagicConfiguration.GeneralSettings.Application.Exchange, dcaLogEntry.Market, Model.Summary.MainMarket)" target="_blank">@dcaLogEntry.Market</a></th>
+                } else {
+                  <th class="align-top"><a href="@Core.Helper.SystemHelper.GetMarketLink(Model.PTMagicConfiguration.GeneralSettings.Monitor.LinkPlatform,Model.PTMagicConfiguration.GeneralSettings.Application.Exchange, dcaLogEntry.Market, Model.Summary.MainMarket)" target="_blank">@dcaLogEntry.Market</a> <i class="fa fa-exclamation-triangle text-highlight" data-toggle="tooltip" data-placement="top" data-html="true" title="@await Component.InvokeAsync("PairIcon", mps)" data-template="<div class='tooltip' role='tooltip'><div class='tooltip-arrow'></div><div class='tooltip-inner pair-tooltip'></div></div>"></i></th>
+                }
+                <td class="text-right">
+                  @if (dcaEnabled) {
+                    @if (dcaLogEntry.BoughtTimes > 0) {
+                      @dcaLogEntry.BoughtTimes;
+                    }
+                  } else {
+                    <span class="text-warning" data-toggle="tooltip" data-placement="top" title="DCA is disabled for this market!">Disabled!</span>
+                  }
+                </td>
+                @if (buyDisabled) {
+                  <td>@Html.Raw(buyStrategyText)</td>
+                } else {
+                  <td>@Html.Raw(buyStrategyText)</td>
+                }
+                <td>@Html.Raw(sellStrategyText)</td>
+                <td class="text-right">
+                  @if (isTrailingSellActive) {
+                    <i class="fa fa-flag-checkered text-success" data-toggle="tooltip" data-placement="top" title="Trailing sell active!"></i>
+                  }
+                  <span class="text-autocolor">@dcaLogEntry.ProfitPercent.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"))%</span>
+                </td>
+                <td class="text-right"><a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)_get/BagDetails/?m=@dcaLogEntry.Market" data-remote="false" data-toggle="modal" data-target="#dca-chart" class="btn btn-mini btn-ptmagic"><i class="fa fa-plus"></i></a></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        @if (Model.PTData.DCALog.Count > Model.PTMagicConfiguration.GeneralSettings.Monitor.MaxDashboardBagEntries) {
+          <p class="text-right"><small><i class="fa fa-info-circle"></i> @Model.PTMagicConfiguration.GeneralSettings.Monitor.MaxDashboardBagEntries of @Model.PTData.DCALog.Count items listed - <a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)BagAnalyzer">View all items</a></small></p>
+        }
+      }
+    </div>
+  </div>
+</div>
+
+<script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/js/jquery.nicescroll.js"></script>
+
+<script type="text/javascript">
+  (function ($) {
+    'use strict';
+
+    $("#dca-chart").on("show.bs.modal", function (e) {
+      $(this).find(".modal-content").html('<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>');
+      var link = $(e.relatedTarget);
+      $(this).find(".modal-content").load(link.attr("href"), function () {
+        $('.text-autocolor').autocolor(false);
+        $('[data-toggle="tooltip"]').tooltip();
+      });
+    });
+
+  })(jQuery);
+
+</script>

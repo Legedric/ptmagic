@@ -1,0 +1,86 @@
+﻿@page
+@model SalesListModel
+@{
+  Layout = null;
+}
+<div class="modal-header">
+  <h4 class="modal-title mt-0">Showing @Model.SellLog.Count sales for @Model.SalesTimeframe</h4>
+  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+</div>
+<div class="modal-body">
+  <table id="sales-list" class="table table-sm">
+    <thead>
+      <tr>
+        <th>Sold Time</th>
+        <th>Market</th>
+        <th class="text-right">Avg. Bought Price</th>
+        <th class="text-right">DCA</th>
+        <th class="text-right">Sold Price</th>
+        <th class="text-right">Sold Amount</th>
+        <th class="text-right">Bought Cost</th>
+        <th class="text-right">Sold Value</th>
+        <th class="text-right">Profit @Model.Summary.MainMarket</th>
+        <th class="text-right">Profit @Model.Summary.MainFiatCurrency</th>
+        <th class="text-right">Profit %</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (Core.Main.DataObjects.PTMagicData.SellLogData sellLogEntry in Model.SellLog) {
+        double profitFiat = Math.Round(sellLogEntry.Profit * Model.Summary.MainMarketPrice, 2);
+        <tr>
+          <td>@sellLogEntry.SoldDate.ToShortDateString() @sellLogEntry.SoldDate.ToLongTimeString()</td>
+          <td><a href="@Core.Helper.SystemHelper.GetMarketLink(Model.PTMagicConfiguration.GeneralSettings.Monitor.LinkPlatform,Model.PTMagicConfiguration.GeneralSettings.Application.Exchange, sellLogEntry.Market, Model.Summary.MainMarket)" target="_blank">@sellLogEntry.Market</a></td>
+          <td class="text-right">@sellLogEntry.AverageBuyPrice.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+          <td class="text-right">
+            @if (sellLogEntry.BoughtTimes > 0) {
+              @sellLogEntry.BoughtTimes;
+            }
+          </td>
+          <td class="text-right">@sellLogEntry.SoldPrice.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+          <td class="text-right">@sellLogEntry.SoldAmount.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+          <td class="text-right">@sellLogEntry.TotalCost.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+          <td class="text-right">@sellLogEntry.SoldValue.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+          <td class="text-right text-autocolor">@sellLogEntry.Profit.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+          <td class="text-right text-autocolor">@profitFiat.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"))</td>
+          <td class="text-right text-autocolor">@sellLogEntry.ProfitPercent.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"))%</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="modal-footer">
+
+</div>
+
+<script type="text/javascript">
+  $(function () {
+    //Buttons examples
+    var table = $('#sales-list').DataTable({
+      lengthChange: false,
+      searching: false,
+      paging: false,
+      info: false,
+      ordering: false,
+      buttons: ['copy', 'excel', 'pdf']
+    });
+
+    table.buttons().container()
+      .appendTo('#sales-list_wrapper .col-md-6:eq(0)');
+
+    $('.btn-trend-relation').click(function () {
+      var relation = $(this).data('trend-relation');
+
+      $('.btn-trend-relation').addClass('btn-custom');
+      $(this).removeClass('btn-custom');
+
+      if (relation == 'absolute') {
+        $('#trends-absolute').removeClass('hidden');
+        $('#trends-relative').addClass('hidden');
+
+      } else {
+        $('#trends-absolute').addClass('hidden');
+        $('#trends-relative').removeClass('hidden');
+      }
+    });
+  })
+</script>

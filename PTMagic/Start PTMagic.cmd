@@ -1,0 +1,2 @@
+dotnet PTMagic.dll
+pause

@@ -1,0 +1,433 @@
+/* =============
+   Tables
+============= */
+
+.table {
+  margin-bottom: 10px;
+}
+
+.table-striped>tbody>tr:nth-of-type(odd),.table-hover > tbody > tr:hover,
+.table > thead > tr > td.active, .table > tbody > tr > td.active, .table > tfoot > tr > td.active,
+.table > thead > tr > th.active, .table > tbody > tr > th.active, .table > tfoot > tr > th.active,
+.table > thead > tr.active > td, .table > tbody > tr.active > td, .table > tfoot > tr.active > td,
+.table > thead > tr.active > th, .table > tbody > tr.active > th, .table > tfoot > tr.active > th {
+  background-color: lighten($dark,5%) !important;
+}
+
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th,
+.table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td ,
+.table > thead > tr > th, .table-bordered{
+  border-top: 1px solid lighten($dark,5%);
+}
+.table-bordered > thead > tr > th,
+.table-bordered > tbody > tr > th,
+.table-bordered > tfoot > tr > th,
+.table-bordered > thead > tr > td,
+.table-bordered > tbody > tr > td,
+.table-bordered > tfoot > tr > td {
+  border: 1px solid lighten($dark,5%);
+}
+
+.table > thead > tr > th {
+  vertical-align: bottom;
+  border-bottom: 2px solid lighten($dark,5%);
+}
+
+.table-bordered ,.table-responsive[data-pattern="priority-columns"]{
+  border: 1px solid lighten($dark,5%);
+}
+table.focus-on {
+  tbody {
+    tr.focused {
+      th {
+        background-color: $custom;
+        color: $white;
+      }
+      td {
+        background-color: $custom;
+        color: $white;
+      }
+    }
+  }
+}
+
+.table-wrapper {
+  .btn-toolbar {
+    display: block;
+  }
+  .dropdown-menu {
+    left: auto;
+    right: 0;
+  }
+}
+
+.sticky-table-header.fixed-solution {
+  top: 70px !important;
+  background-color: $custom;
+}
+
+.fixed-table-container tbody .selected td {
+  background-color: lighten($dark,5%);
+}
+
+.modal-block {
+  background: transparent;
+  margin: 40px auto;
+  max-width: 600px;
+  padding: 0;
+  position: relative;
+  text-align: left;
+}
+
+
+/* Data table */
+#datatable-editable {
+  .actions {
+    a {
+      padding: 5px;
+    }
+  }
+  .form-control {
+    background-color: $white;
+    width: 100%;
+  }
+  .fa-trash-o {
+    color: $danger;
+  }
+  .fa-times {
+    color: $danger;
+  }
+  .fa-pencil {
+    color: #29b6f6;
+  }
+  .fa-save {
+    color: #33b86c;
+  }
+}
+
+#datatable {
+  td {
+    font-weight: normal;
+  }
+}
+
+div.dataTables_paginate {
+  ul.pagination {
+    margin-top: 30px;
+  }
+}
+
+div.dataTables_info {
+  padding-top: 38px;
+}
+
+.dt-buttons {
+  float: left;
+}
+div#datatable-buttons_info {
+  float: left;
+}
+
+#datatable-editable .form-control {
+  background-color: $white;
+  width: auto;
+  height: 20px;
+}
+
+/* Footable */
+.footable-odd {
+  background-color: $dark;
+}
+.footable-detail-show {
+  background-color: lighten($dark,5%);
+}
+.footable-row-detail {
+  background-color: lighten($dark,5%);
+}
+.footable-pagination {
+  li {
+    margin-left: 5px;
+    display: inline-block;
+    float: left;
+
+    a{
+      position: relative;
+      display: block;
+      padding: .5rem .75rem;
+      margin-left: -1px;
+      line-height: 1.25;
+      color: $muted;
+      background-color: lighten($dark,5%);
+      border: 1px solid lighten($dark,5%);
+    }
+  }
+  li.active {
+    a {
+      color: $white;
+    }
+  }
+}
+
+/* Bootstrap Table */
+table[data-toggle="table"] {
+  display: none;
+}
+.fixed-table-pagination .pagination-detail, .fixed-table-pagination div.pagination {
+  margin-top: 20px;
+}
+
+.fixed-table-container {
+  border: none;
+}
+.bootstrap-table .table>thead>tr>th {
+  border-bottom: 2px solid lighten($dark,10%);
+  background: lighten($dark,5%);
+}
+.fixed-table-container thead th .th-inner {
+  padding: 9px 12px;
+}
+.bootstrap-table .table, .bootstrap-table .table>tbody>tr>td, .bootstrap-table .table>tbody>tr>th, .bootstrap-table .table>tfoot>tr>td, .bootstrap-table .table>tfoot>tr>th, .bootstrap-table .table>thead>tr>td {
+  padding: 8px 12px !important;
+}
+
+.fixed-table-pagination {
+  .pagination a {
+    display: block;
+    border-radius: 3px;
+  }
+  .page-number.active {
+    a {
+      color: $white;
+    }
+  }
+  .page-list {
+    .dropdown-menu {
+      a {
+        color: $muted;
+        display: block;
+      }
+    }
+  }
+}
+
+/* Tablesaw */
+.tablesaw thead {
+  background: lighten($dark,5%);
+  background-image: none;
+  border: none;
+}
+table.tablesaw thead th, table.tablesaw thead td {
+  color: $white;
+}
+.tablesaw thead th {
+  text-shadow: none;
+  letter-spacing: 0.06em;
+}
+.tablesaw thead tr:first-child th {
+  padding-top: 1.1em;
+  padding-bottom: 0.9em;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+}
+.tablesaw td, .tablesaw tbody th {
+  font-size: inherit;
+  line-height: inherit;
+  padding: 10px !important;
+}
+.tablesaw-stack tbody tr ,.tablesaw tbody tr{
+  border-bottom: none;
+}
+.tablesaw-sortable .tablesaw-sortable-head.tablesaw-sortable-ascending button:after, .tablesaw-sortable .tablesaw-sortable-head.tablesaw-sortable-descending button:after {
+  font-family: FontAwesome;
+  font-size: 10px;
+}
+.tablesaw-sortable .tablesaw-sortable-head.tablesaw-sortable-ascending button:after {
+  content: "\f176";
+}
+.tablesaw-sortable .tablesaw-sortable-head.tablesaw-sortable-descending button:after {
+  content: "\f175";
+}
+.tablesaw-bar .btn-select.btn-small:after, .tablesaw-bar .btn-select.btn-micro:after {
+  font-size: 8px;
+  padding-right: 10px;
+}
+.tablesaw-swipe .tablesaw-cell-persist {
+  box-shadow: none;
+}
+.tablesaw-enhanced .tablesaw-bar .btn {
+  text-shadow: none;
+  background-image: none;
+}
+.tablesaw-enhanced .tablesaw-bar .btn.btn-select {
+  &:hover {
+    background: $white;
+  }
+}
+.tablesaw-enhanced .tablesaw-bar .btn:hover, .tablesaw-enhanced .tablesaw-bar .btn:focus,.tablesaw-enhanced .tablesaw-bar .btn:active {
+  color: $custom !important;
+  background-color: $light5;
+  outline: none !important;
+  box-shadow: none !important;
+  background-image: none;
+}
+.tablesaw-swipe .tablesaw-cell-persist {
+  border-right: 1px solid lighten($dark,15%);
+}
+.tablesaw-columntoggle-btnwrap.visible .tablesaw-columntoggle-popup {
+  background-color: lighten($dark,10%);
+}
+.tablesaw-columntoggle-btnwrap .btn-group {
+  display: block;
+}
+
+
+/* Fixed table */
+.fixedHeader-floating {
+  top: 60px !important;
+}
+/* Key Table */
+table.dataTable th.focus,table.dataTable td.focus{outline:3px solid $custom !important;outline-offset:-1px}
+
+/* ColVid Tables */
+div.ColVis {
+  float: none;
+  margin-right: 30px;
+}
+button.ColVis_Button,.ColVis_Button:hover {
+  float: none;
+  border-radius: 3px;
+  outline: none !important;
+  background: none;
+  box-shadow: none;
+  color: $white !important;
+  background-color: $custom !important;
+  border: 1px solid $custom !important;
+}
+.dataTables_length {
+  float: left;
+}
+div.ColVis_collectionBackground {
+  background-color: transparent;
+}
+ul.ColVis_collection {
+  padding: 10px 0px 0px 0px;
+  background-color: $white;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+  border: none;
+
+  li{
+    background: transparent !important;
+    padding: 3px 10px !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+#datatable-colvid_info {
+  float: left;
+}
+
+
+/* JsGrid table */
+.jsgrid-grid-header,.jsgrid-header-row>.jsgrid-header-cell,
+.jsgrid-filter-row>.jsgrid-cell,.jsgrid-row>.jsgrid-cell{
+  background: transparent;
+}
+.jsgrid-cell {
+  padding: .8em;
+}
+.jsgrid-edit-row>.jsgrid-cell, .jsgrid-filter-row>.jsgrid-cell,
+.jsgrid-grid-body, .jsgrid-grid-header, .jsgrid-header-row>.jsgrid-header-cell,
+.jsgrid-insert-row>.jsgrid-cell {
+  border: 1px solid rgba($white,0.1);
+}
+
+.jsgrid-selected-row > .jsgrid-cell {
+  background: lighten($dark,5%);
+  border-color: lighten($dark,5%);
+
+  .jsgrid-button {
+    background-color: $light5;
+  }
+}
+.jsgrid-cell {
+  border: 1px solid rgba($white,0.1);
+}
+.jsgrid-alt-row>.jsgrid-cell {
+  background: lighten($dark,5%);
+}
+
+.jsgrid-edit-row > .jsgrid-cell,.jsgrid-insert-row>.jsgrid-cell {
+  background: rgba($white,0.1);
+
+  .jsgrid-button {
+    background-color: $light5;
+  }
+}
+
+.jsgrid input, .jsgrid select, .jsgrid textarea {
+  border: 1px solid lighten($dark,10%);
+  padding: .4em .6em;
+  color: $white;
+  background-color: transparent;
+}
+
+.jsgrid-pager-container {
+  margin-top: 10px;
+}
+.jsgrid-pager-page {
+  padding: 0;
+  margin: 0 2px;
+}
+.jsgrid-pager-page a,.jsgrid-pager-current-page{
+  background-color: rgba($white,0.2);
+  border-radius: 50%;
+  height: 24px;
+  width: 24px;
+  display: inline-block;
+  text-align: center;
+  line-height: 24px;
+  color: $white;
+}
+.jsgrid-pager-page.jsgrid-pager-current-page {
+  background-color: $custom;
+}
+
+.jsgrid-pager-nav-button {
+  a{
+    color: $muted;
+    font-weight: 500;
+    font-family: $font-secondary;
+
+    &:hover {
+      color: $custom;
+    }
+  }
+}
+
+.jsgrid .jsgrid-button {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-image: url("../images/download.png");
+  background-color: #eee;
+
+  &:hover {
+    opacity: 0.9;
+    background-color: $light5;
+  }
+}
+
+.jsgrid-search-mode-button {
+  background-position: 0 -295px;
+}
+.jsgrid-insert-button {
+  background-position: 0 -160px;
+}
+
+.jsgrid-header-sort:before {
+  position: absolute;
+}
+.jsgrid-header-cell {
+  text-align: center !important;
+}

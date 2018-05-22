@@ -1,0 +1,195 @@
+﻿@page
+@model DashboardBottomModel
+@{
+  Layout = null;
+}
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="card-box">
+      <h4 class="m-t-0 m-b-20 header-title"><b>Sales Overview</b><small class="pull-right"><a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)SalesAnalyzer">more</a></small></h4>
+      @{
+        double totalProfit = Model.PTData.SellLog.Sum(s => s.Profit);
+        double totalProfitFiat = Math.Round(totalProfit * Model.Summary.MainMarketPrice, 2);
+        double percentGain = Math.Round(totalProfit / Model.PTMagicConfiguration.GeneralSettings.Application.StartBalance * 100, 2);
+        string percentGainText = percentGain.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US")) + "%";
+        if (Model.PTData.TransactionData.Transactions.Count > 0) {
+          percentGainText = "<i class=\"fa fa-info-circle text-muted\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"You have added at least one manual transaction, so the total gain percentage cannot be calculated.\"></i>";
+        }
+
+        double todaysStartBalance = Model.PTData.GetSnapshotBalance(Model.DateTimeNow.DateTime);
+        double todaysProfit = Model.PTData.SellLogToday.Sum(s => s.Profit);
+        double todaysProfitFiat = Math.Round(todaysProfit * Model.Summary.MainMarketPrice, 2);
+        double todaysPercentGain = Math.Round(todaysProfit / todaysStartBalance * 100, 2);
+
+        double yesterdaysStartBalance = Model.PTData.GetSnapshotBalance(Model.DateTimeNow.DateTime.AddDays(-1));
+        double yesterdaysProfit = Model.PTData.SellLogYesterday.Sum(s => s.Profit);
+        double yesterdaysProfitFiat = Math.Round(yesterdaysProfit * Model.Summary.MainMarketPrice, 2);
+        double yesterdaysPercentGain = Math.Round(yesterdaysProfit / yesterdaysStartBalance * 100, 2);
+
+        double last7DaysStartBalance = Model.PTData.GetSnapshotBalance(Model.DateTimeNow.DateTime.AddDays(-7));
+        double last7DaysProfit = Model.PTData.SellLogLast7Days.Sum(s => s.Profit);
+        double last7DaysProfitFiat = Math.Round(last7DaysProfit * Model.Summary.MainMarketPrice, 2);
+        double last7DaysPercentGain = Math.Round(last7DaysProfit / last7DaysStartBalance * 100, 2);
+      }
+
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th></th>
+            <th class="text-right">Sales</th>
+            <th class="text-right">Profit @Model.Summary.MainMarket</th>
+            <th class="text-right">Profit @Model.Summary.MainFiatCurrency</th>
+            <th class="text-right">% Gain</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Today</th>
+            <td class="text-right">@Model.PTData.SellLogToday.Count</td>
+            <td class="text-right text-autocolor">@todaysProfit.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+            <td class="text-right text-autocolor">@Html.Raw(Model.MainFiatCurrencySymbol + todaysProfitFiat.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US")))</td>
+            <td class="text-right text-autocolor">@todaysPercentGain.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"))%</td>
+          </tr>
+          <tr>
+            <th>Yesterday</th>
+            <td class="text-right">@Model.PTData.SellLogYesterday.Count</td>
+            <td class="text-right text-autocolor">@yesterdaysProfit.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+            <td class="text-right text-autocolor">@Html.Raw(Model.MainFiatCurrencySymbol + yesterdaysProfitFiat.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US")))</td>
+            <td class="text-right text-autocolor">@yesterdaysPercentGain.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"))%</td>
+          </tr>
+          <tr>
+            <th>Last 7 Days</th>
+            <td class="text-right">@Model.PTData.SellLogLast7Days.Count</td>
+            <td class="text-right text-autocolor">@last7DaysProfit.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+            <td class="text-right text-autocolor">@Html.Raw(Model.MainFiatCurrencySymbol + last7DaysProfitFiat.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US")))</td>
+            <td class="text-right text-autocolor">@last7DaysPercentGain.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"))%</td>
+          </tr>
+          <tr>
+            <th>Total</th>
+            <td class="text-right">@Model.PTData.SellLog.Count</td>
+            <td class="text-right text-autocolor">@totalProfit.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+            <td class="text-right text-autocolor">@Html.Raw(Model.MainFiatCurrencySymbol + totalProfitFiat.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US")))</td>
+            <td class="text-right text-autocolor">@Html.Raw(percentGainText)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card-box">
+      <h4 class="m-t-0 m-b-20 header-title"><b>Market Trends</b><small class="pull-right"><a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)MarketAnalyzer">more</a></small></h4>
+
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th class="text-right">Markets</th>
+            <th class="text-right">Timeframe</th>
+            <th class="text-right">Change</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var marketTrend in Model.MarketTrends.OrderBy(mt => mt.TrendMinutes)) {
+            if (Model.Summary.MarketTrendChanges.ContainsKey(marketTrend.Name)) {
+              double trendChange = Model.Summary.MarketTrendChanges[marketTrend.Name].OrderByDescending(mtc => mtc.TrendDateTime).First().TrendChange;
+              string trendChangeOutput = trendChange.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"));
+
+              int marketCount = marketTrend.MaxMarkets;
+              string marketCountString = marketCount.ToString();
+
+              if (marketCount == 0) {
+                marketCountString = "All";
+              } else if (marketCount > Model.Summary.MarketSummary.Keys.Count && marketTrend.Platform.Equals("Exchange", StringComparison.InvariantCultureIgnoreCase)) {
+                marketCountString = Model.Summary.MarketSummary.Keys.Count.ToString();
+              }
+              <tr>
+                <td>@Core.Helper.SystemHelper.SplitCamelCase(marketTrend.Name)</td>
+                <td class="text-right">@marketCountString</td>
+                <td class="text-right">@Core.Helper.SystemHelper.GetProperDurationTime(marketTrend.TrendMinutes * 60, false)</td>
+                <td class="text-right text-autocolor">@trendChangeOutput%</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="card-box" style="height:205px;">
+      @if (!Model.ProfitChartDataJSON.Equals("")) {
+        <div class="profit-chart">
+          <svg style="height:205px;width:100%"></svg>
+        </div>
+      } else {
+        <p>Not able to load graph, no sales data found.<br />If you still do not see a graph after you made your first sale, report an issue.</p>
+      }
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card-box" style="height:205px;">
+      @if (!Model.TrendChartDataJSON.Equals("")) {
+        <div class="trend-chart">
+          <svg style="height:205px;width:100%"></svg>
+        </div>
+      } else {
+        <p>Not able to load graph, no market trend data found.<br />If you still do not see a graph after more than hour, report an issue.</p>
+      }
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  (function ($) {
+    'use strict';
+    $('[role="tooltip"]').remove();
+    $('[data-toggle="tooltip"]').tooltip();
+    $('.text-autocolor').autocolor(false);
+
+@if (!Model.Summary.CurrentGlobalSetting.SettingName.Equals(Model.LastGlobalSetting)) {
+<text>
+  $.Notification.notify('success', 'top left', '@Core.Helper.SystemHelper.SplitCamelCase(Model.Summary.CurrentGlobalSetting.SettingName) now active!', 'PTMagic switched Profit Trailer settings to "@Core.Helper.SystemHelper.SplitCamelCase(Model.Summary.CurrentGlobalSetting.SettingName)".');
+</text>
+}
+
+@if (!Model.TrendChartDataJSON.Equals("")) {
+  <text>
+    nv.addGraph(function () {
+      var lineChart = nv.models.lineChart();
+      var height = 300;
+      var chartData = @Html.Raw(Model.TrendChartDataJSON);
+    lineChart.useInteractiveGuideline(true);
+    lineChart.xAxis.tickFormat(function (d) { return d3.time.format('%H:%M')(new Date(d)); });
+    lineChart.yAxis.axisLabel('Trend %').tickFormat(d3.format(',.2f'));
+    d3.select('.trend-chart svg').attr('perserveAspectRatio', 'xMinYMid').datum(chartData).transition().duration(500).call(lineChart);
+    //nv.utils.windowResize(lineChart.update); v1.3.0 => Removed this line to prevent memory leak
+
+    return lineChart;
+  });
+  </text>
+}
+
+@if (!Model.ProfitChartDataJSON.Equals("")) {
+  <text>
+    nv.addGraph(function () {
+      var lineChart = nv.models.lineChart();
+      var height = 300;
+      var chartData = @Html.Raw(Model.ProfitChartDataJSON);
+    lineChart.useInteractiveGuideline(true);
+    lineChart.xAxis.tickFormat(function (d) { return d3.time.format('%Y/%m/%d')(new Date(d)); });
+    lineChart.yAxis.axisLabel('Profit').tickFormat(d3.format(',.2f'));
+    d3.select('.profit-chart svg').attr('perserveAspectRatio', 'xMinYMid').datum(chartData).transition().duration(500).call(lineChart);
+    //nv.utils.windowResize(lineChart.update); v1.3.0 => Removed this line to prevent memory leak
+
+    return lineChart;
+  });
+  </text>
+}
+})(jQuery);
+
+</script>

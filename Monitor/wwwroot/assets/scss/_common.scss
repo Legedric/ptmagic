@@ -1,0 +1,116 @@
+/* =============
+   Common
+============= */
+
+body {
+  background: darken($dark,3%);
+  margin: 0;
+  overflow-x: hidden;
+  color: rgba($white,0.7);
+  font-family: $font-primary;
+  font-size: $font-size-priary;
+}
+html {
+  position: relative;
+  min-height: 100%;
+  background: darken($dark,3%);
+}
+h1, h2, h3, h4, h5, h6 {
+  margin: 10px 0;
+  font-family: $font-secondary;
+}
+
+
+p {
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+* {
+  outline: none !important;
+}
+
+b {
+  font-weight: 600;
+}
+
+a {
+  color: $custom;
+  &:hover,&:focus,&:active {
+    color: lighten($custom,10%);
+    outline: 0;
+    text-decoration: none;
+  }
+}
+
+a.text-dark:focus, a.text-dark:hover {
+  color: $white !important;
+}
+
+
+/* Footer */
+.footer {
+  border-top: 1px solid rgba($white, 0.1);
+  bottom: 0;
+  text-align: left !important;
+  padding: 20px 30px;
+  position: absolute;
+  right: 0;
+  left: 240px;
+  font-size: 13px;
+}
+
+#wrapper {
+  height: $height;
+  overflow: hidden;
+  width: $width;
+}
+
+.page {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+}
+
+/* Page titles */
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 0;
+  margin-top: 7px;
+}
+.page-title+.breadcrumb {
+  font-size: 0.9rem;
+}
+
+.page-title-alt {
+  margin-bottom: 23px;
+  margin-top: 10px;
+}
+.page-header {
+  border-bottom: 1px solid lighten($dark,10%);
+}
+.header-title {
+  text-transform: uppercase;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 16px;
+  margin-bottom: 8px;
+}
+
+.social-links {
+  li {
+    a {
+      -webkit-border-radius: 50%;
+      background: lighten($dark,5%);
+      border-radius: 50%;
+      color: $muted;
+      display: inline-block;
+      height: 30px;
+      line-height: 30px;
+      text-align: center;
+      width: 30px;
+    }
+  }
+}

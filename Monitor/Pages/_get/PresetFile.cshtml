@@ -1,0 +1,21 @@
+﻿@page
+@model PresetFileModel
+@{
+  Layout = null;
+}
+<textarea id="preset-file">@Html.Raw(Model.FileContent)</textarea>
+<div id="editor"></div>
+
+<script type="text/javascript">
+  var editor = ace.edit("editor");
+  var txtArea = $('#preset-file');
+  var jsbOpts = {
+    indent_size: 2
+  };
+  editor.setTheme("ace/theme/ptmagic");
+  editor.getSession().setMode("ace/mode/java");
+  editor.getSession().setValue(txtArea.val());
+  editor.getSession().on('change', function () {
+    txtArea.val(editor.getSession().getValue());
+  });
+</script>

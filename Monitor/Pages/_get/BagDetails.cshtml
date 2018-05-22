@@ -1,0 +1,267 @@
+﻿@page
+@model BagDetailsModel
+@{
+  Layout = null;
+
+  Core.Main.DataObjects.PTMagicData.MarketPairSummary mps = null;
+
+  if (Model.Summary.MarketSummary.ContainsKey(Model.DCALogData.Market)) {
+    mps = Model.Summary.MarketSummary[Model.DCALogData.Market];
+  }
+  int nextBuyTrigger = Model.DCALogData.BoughtTimes + 1;
+
+  double nextBuyTriggerPercent = 0;
+  if (Model.Summary.DCATriggers.Count >= nextBuyTrigger) {
+    nextBuyTriggerPercent = Model.Summary.DCATriggers[nextBuyTrigger];
+  }
+
+  bool buyDisabled = false;
+  string buyTriggerText = Model.DCALogData.BuyTriggerPercent.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US")) + "%";
+
+
+  if (mps != null) {
+    if (!mps.IsDCAEnabled) {
+      nextBuyTriggerPercent = 0;
+      buyDisabled = true;
+      buyTriggerText = "";
+    } else {
+      if (Model.DCALogData.BuyTriggerPercent == 0) {
+        Model.DCALogData.BuyTriggerPercent = Model.DCALogData.ProfitPercent;
+      }
+    }
+  } else {
+    buyDisabled = Model.DCALogData.BuyStrategy == null;
+    if (Model.DCALogData.BuyTriggerPercent == 0) {
+      Model.DCALogData.BuyTriggerPercent = Model.DCALogData.ProfitPercent;
+    }
+  }
+
+  bool isTrailingBuyActive = Model.DCALogData.IsTrailing;
+  if (Model.DCALogData.BuyStrategies.Count > 0) {
+    isTrailingBuyActive = (Model.DCALogData.BuyStrategies.FindAll(bs => !bs.IsTrailing).Count == 0);
+  }
+
+  string buyStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, Model.DCALogData.BuyStrategies, Model.DCALogData.BuyStrategy, isTrailingBuyActive);
+  if (!Core.ProfitTrailer.StrategyHelper.IsValidStrategy(buyStrategyText, true)) {
+    buyDisabled = true;
+  }
+
+  string currentBuyValueText = Core.ProfitTrailer.StrategyHelper.GetCurrentValueText(Model.DCALogData.BuyStrategies, Model.DCALogData.BuyStrategy, Model.DCALogData.CurrentLowBBValue, Model.DCALogData.BuyTriggerPercent, true);
+  string triggerBuyValueText = Core.ProfitTrailer.StrategyHelper.GetTriggerValueText(Model.Summary, Model.DCALogData.BuyStrategies, Model.DCALogData.BuyStrategy, Model.DCALogData.BBTrigger, Core.Main.Constants.MinTrendChange, Model.DCALogData.BoughtTimes, true);
+
+  string bagAgeText = "";
+  int bagAgeSeconds = (int)Math.Ceiling(Model.DateTimeNow.Subtract(Model.DCALogData.FirstBoughtDate).TotalSeconds);
+  bagAgeText = Core.Helper.SystemHelper.GetProperDurationTime(bagAgeSeconds);
+
+  double nextBuyTriggerPrice = 0.0;
+  double nextAvgBoughtPrice = 0.0;
+  if (nextBuyTriggerPercent != 0) {
+    nextBuyTriggerPrice = Model.DCALogData.AverageBuyPrice + (Model.DCALogData.AverageBuyPrice * nextBuyTriggerPercent / 100);
+    nextAvgBoughtPrice = (Model.DCALogData.TotalCost + (Model.DCALogData.Amount * nextBuyTriggerPrice)) / (Model.DCALogData.Amount * 2);
+  }
+
+  bool isTrailingSellActive = false;
+  if (Model.DCALogData.SellStrategies.Count > 0) {
+    isTrailingSellActive = (Model.DCALogData.SellStrategies.FindAll(ss => !ss.IsTrailing).Count == 0);
+  }
+
+  string sellStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, Model.DCALogData.SellStrategies, Model.DCALogData.SellStrategy, isTrailingSellActive);
+  string currentSellValueText = Core.ProfitTrailer.StrategyHelper.GetCurrentValueText(Model.DCALogData.SellStrategies, Model.DCALogData.SellStrategy, Model.DCALogData.CurrentHighBBValue, Model.DCALogData.ProfitPercent, true);
+  string triggerSellValueText = Core.ProfitTrailer.StrategyHelper.GetTriggerValueText(Model.Summary, Model.DCALogData.SellStrategies, Model.DCALogData.SellStrategy, Model.DCALogData.BBTrigger, Model.DCALogData.SellTrigger, 0, true);
+
+  double sellTriggerPrice = Model.DCALogData.AverageBuyPrice + (Model.DCALogData.AverageBuyPrice * Model.DCALogData.SellTrigger / 100);
+
+  double averageProfitPercent = 0;
+  if (Model.PTData.SellLog.FindAll(m => m.Market == Model.DCALogData.Market).Count > 0) {
+    averageProfitPercent = Model.PTData.SellLog.FindAll(m => m.Market == Model.DCALogData.Market).Average(p => p.ProfitPercent);
+  }
+
+  double investedFiatValue = Math.Round(Model.DCALogData.TotalCost * Model.Summary.MainMarketPrice, 2);
+  double currentValue = Math.Round(Model.DCALogData.Amount * Model.DCALogData.CurrentPrice, 8);
+  double currentFiatValue = Math.Round(Model.DCALogData.Amount * Model.DCALogData.CurrentPrice * Model.Summary.MainMarketPrice, 2);
+  double currentProfit = Math.Round(currentValue - Model.DCALogData.TotalCost, 8);
+  double currentFiatProfit = Math.Round(currentFiatValue - investedFiatValue, 2);
+}
+<div class="modal-header">
+  <h4 class="modal-title mt-0">Bag details for @Model.DCAMarket</h4>
+  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+</div>
+<div class="modal-body">
+  <div class="row">
+    <div class="col-md-12">
+      <!-- TradingView Widget BEGIN -->
+      <div class="tradingview-widget-container">
+        <div id="tradingview_6aa22" style="height:300px;"></div>
+        <div class="tradingview-widget-copyright"><a href="@Core.Helper.SystemHelper.GetMarketLink(Model.PTMagicConfiguration.GeneralSettings.Monitor.LinkPlatform,Model.PTMagicConfiguration.GeneralSettings.Application.Exchange, Model.DCAMarket, Model.Summary.MainMarket)" rel="noopener" target="_blank"><span class="blue-text">@Model.DCAMarket</span> <span class="blue-text">chart</span> by TradingView</a></div>
+      </div>
+      <!-- TradingView Widget END -->
+    </div>
+  </div>
+
+  <div class="row m-b-20">
+    <div class="col-md-12"></div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <h4 class="m-t-0 header-title">Buy Details at DCA Level @Model.DCALogData.BoughtTimes</h4>
+
+      <table class="table table-sm table-striped">
+        <tbody>
+          <tr>
+            <td>First Bought</td>
+            <td class="text-right">@Model.DCALogData.FirstBoughtDate.ToShortDateString() @Model.DCALogData.FirstBoughtDate.ToShortTimeString()</td>
+          </tr>
+          <tr>
+            <td>DCA Buy Strategies</td>
+            @if (buyDisabled) {
+              <td class="text-right text-nowrap">@Html.Raw(buyStrategyText)</td>
+            } else {
+              <td class="text-right text-nowrap">@Html.Raw(buyStrategyText)</td>
+            }
+          </tr>
+          <tr>
+            <td>Average Buy Price</td>
+            <td class="text-right">@Model.DCALogData.AverageBuyPrice.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+          </tr>
+          <tr>
+            <td>Invested @Model.Summary.MainMarket Value</td>
+            <td class="text-right">@Model.DCALogData.TotalCost.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+          </tr>
+          <tr>
+            <td>Invested @Model.Summary.MainFiatCurrency Value</td>
+            <td class="text-right">@Html.Raw(Model.MainFiatCurrencySymbol + investedFiatValue.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US")))</td>
+          </tr>
+          <tr>
+            <td>Current Buy Trigger Value</td>
+            <td class="text-right">
+              @if (!buyDisabled) {
+                @Html.Raw(currentBuyValueText)
+              }
+            </td>
+          </tr>
+          <tr>
+            <td>Next Buy Trigger</td>
+            @if (!buyDisabled && Model.DCALogData.BoughtTimes < Model.Summary.DCALevels) {
+              <td class="text-right text-nowrap">@Html.Raw(triggerBuyValueText)</td>
+            } else {
+              if (!buyDisabled && Model.DCALogData.BoughtTimes >= Model.Summary.DCALevels) {
+                <td class="text-right text-warning">MAX</td>
+              } else {
+                <td class="text-right text-warning">Disabled!</td>
+              }
+            }
+          </tr>
+          @if (Model.DCALogData.BuyStrategies.Count == 0) {
+            <tr>
+              <td>Next Buy Trigger Price <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Approximate price for the next buy trigger to be matched. Not taking any trailing into account!"></i></td>
+              @if (!buyDisabled) {
+                @if (nextBuyTriggerPrice != 0) {
+                  <td class="text-right">@nextBuyTriggerPrice.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+                } else {
+                  <td class="text-right text-warning">MAX</td>
+                }
+              } else {
+                <td class="text-right text-warning">DCA Disabled!</td>
+              }
+            </tr>
+            <tr>
+              <td>Next approx. Avg. Price <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Approximate new average bought price for this market AFTER the next buy level got bought. Not taking any trailing into account!"></i></td>
+              @if (!buyDisabled) {
+                @if (nextAvgBoughtPrice != 0) {
+                  <td class="text-right">@nextAvgBoughtPrice.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+                } else {
+                  <td class="text-right text-warning">MAX</td>
+                }
+              } else {
+                <td class="text-right text-warning">DCA Disabled!</td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="col-md-6">
+      <h4 class="m-t-0 header-title">Sell Details</h4>
+
+      <table class="table table-sm table-striped">
+        <tbody>
+          <tr>
+            <td>Age</td>
+            <td class="text-right">@bagAgeText</td>
+          </tr>
+          <tr>
+            <td>Sell Strategies</td>
+            <td class="text-right">@Html.Raw(sellStrategyText)</td>
+          </tr>
+          <tr>
+            <td>Current Bid Price</td>
+            <td class="text-right">@Model.DCALogData.CurrentPrice.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+          </tr>
+          <tr>
+            <td>Current @Model.Summary.MainMarket Value</td>
+            <td class="text-right">@currentValue.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US")) (<span class="text-autocolor">@currentProfit.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</span>)</td>
+          </tr>
+          <tr>
+            <td>Current @Model.Summary.MainFiatCurrency Value</td>
+            <td class="text-right">@Html.Raw(Model.MainFiatCurrencySymbol + currentFiatValue.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"))) (<span class="text-autocolor">@Html.Raw(Model.MainFiatCurrencySymbol + currentFiatProfit.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US")))</span>)</td>
+          </tr>
+          <tr>
+            <td>Current Profit/Loss</td>
+            <td class="text-right text-autocolor">@Model.DCALogData.ProfitPercent.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"))%</td>
+          </tr>
+          @if (Model.DCALogData.CurrentHighBBValue > 0) {
+            <tr>
+              <td>Sell Value (HBB)</td>
+              <td class="text-right">@Model.DCALogData.CurrentHighBBValue.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+            </tr>
+          }
+          <tr>
+            <td>Sell Trigger</td>
+            <td class="text-right">@Html.Raw(triggerSellValueText)</td>
+          </tr>
+          @if (Model.DCALogData.SellStrategies.Count == 0) {
+            <tr>
+              <td>Sell Trigger Price <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Approximate price needed for the sell trigger to be matched. Not taking any trailing into account!"></i></td>
+              <td class="text-right">@sellTriggerPrice.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+            </tr>
+          }
+          <tr>
+            <td>Average Profit % <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The average profit percentage you achieved in sales for @Model.DCALogData.Market according to your sales log"></i></td>
+            @if (averageProfitPercent != 0) {
+              <td class="text-right  text-autocolor">@averageProfitPercent.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"))%</td>
+            } else {
+              <td class="text-right text-muted">No sales found for @Model.DCALogData.Market</td>
+            }
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+<div class="modal-footer">
+
+</div>
+<script type="text/javascript">
+  $(function () {
+    new TradingView.widget(
+      {
+        "autosize":true,
+        "symbol": "@Core.Helper.SystemHelper.GetTradingViewSymbol(Model.PTMagicConfiguration.GeneralSettings.Application.Exchange, Model.DCAMarket, Model.Summary.MainMarket)",
+        "interval": "60",
+        "timezone": "exchange",
+        "theme": "Dark",
+        "style": "1",
+        "locale": "en",
+        "toolbar_bg": "#f1f3f6",
+        "enable_publishing": false,
+        "allow_symbol_change": false,
+        "hideideas": true,
+        "hide_side_toolbar": false,
+        "container_id": "tradingview_6aa22"
+      }
+    );
+
+  });
+</script>

@@ -1,0 +1,144 @@
+﻿@page
+@model PresetFilesModel
+@{
+  ViewData["Title"] = "";
+}
+
+@section Styles {
+  <style type="text/css" media="screen">
+
+    #editor {
+      height: 500px;
+      width: 100%;
+    }
+
+    #preset-file {
+      display: none;
+    }
+  </style>
+}
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card-box">
+      <h4 class="m-t-0 header-title">Preset Files</h4>
+
+      <p>
+        Use this list to edit your preset files for PTM.
+      </p>
+    </div>
+  </div>
+</div>
+
+@foreach (Core.Main.DataObjects.PTMagicData.GlobalSetting globalSetting in Model.GlobalSettingsWithPresets) {
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card-box">
+        <h4 class="m-t-0 header-title">
+          @Core.Helper.SystemHelper.SplitCamelCase(globalSetting.SettingName)
+        </h4>
+
+        <ul>
+          @if (globalSetting.PairsProperties.ContainsKey("File")) {
+            <li><a class="btn-edit-presetfile" data-settingname="@Html.Raw(globalSetting.SettingName)" data-datatarget="@Html.Raw(globalSetting.PairsProperties["File"])" href="#">@Html.Raw(globalSetting.PairsProperties["File"])</a></li>
+          }
+          @if (globalSetting.DCAProperties.ContainsKey("File")) {
+            <li><a class="btn-edit-presetfile" data-settingname="@Html.Raw(globalSetting.SettingName)" data-datatarget="@Html.Raw(globalSetting.DCAProperties["File"])" href="#">@Html.Raw(globalSetting.DCAProperties["File"])</a></li>
+          }
+          @if (globalSetting.IndicatorsProperties.ContainsKey("File")) {
+            <li><a class="btn-edit-presetfile" data-settingname="@Html.Raw(globalSetting.SettingName)" data-datatarget="@Html.Raw(globalSetting.IndicatorsProperties["File"])" href="#">@Html.Raw(globalSetting.IndicatorsProperties["File"])</a></li>
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+}
+
+<form class="form-horizontal" method="post">
+  <!-- Modal -->
+  <div class="modal fade" id="modalEditPresetFile" tabindex="-1" role="dialog" aria-labelledby="modalEditPresetFileTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalEditPresetFileTitle"></h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div id="modalEditPresetFileBody" class="modal-body">
+          <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ptmagic text-uppercase waves-effect waves-light btn-savepresetfile" data-datatarget="" data-settingname="">Save</button>
+          <button type="button" class="btn btn-secondary text-uppercase" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+@section Scripts {
+  <!-- Code mirror js -->
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/ace/ace.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+      $('.text-autocolor').autocolor(false);
+
+      $('.btn-edit-presetfile').click(function () {
+        var settingName = $(this).data('settingname');
+        var dataTarget = $(this).data('datatarget');
+
+        $('.btn-savepresetfile').data('settingname', settingName);
+        $('.btn-savepresetfile').data('datatarget', dataTarget);
+
+        $('#modalEditPresetFileTitle').html('Edit ' + dataTarget + ' for ' + settingName);
+        $('#modalEditPresetFile').modal('show');
+
+        $("#modalEditPresetFileBody").load('@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)_get/PresetFile?f=' + encodeURI(dataTarget) + '&gs=' + encodeURI(settingName), '', function (responseText, textStatus, XMLHttpRequest) {
+          if (textStatus == 'error') {
+            $.Notification.notify('error', 'top left', 'Loading preset file failed!', 'PTMagic Monitor failed to load preset file ' + dataTarget + ' for global setting ' + settingName + '.')
+          } else if (responseText == 'returntologin') {
+            window.location.replace("@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)Login");
+          }
+        });
+
+        return false;
+      });
+
+      $('.btn-savepresetfile').click(function () {
+        var dataTarget = $(this).data('datatarget');
+        var dataSetting = $(this).data('settingname');
+
+        var postValues = { FileName: dataTarget, SettingName: dataSetting, FileContent: $('#preset-file').val() };
+        $.ajax({
+          type: 'POST',
+          url: "@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)_post/SavePresetFile",
+          contentType: "application/json; charset=utf-8",
+          dataType: "json",
+          data: JSON.stringify(postValues),
+          beforeSend: function (xhr) {
+            xhr.setRequestHeader("XSRF-TOKEN",
+              $('input:hidden[name="__RequestVerificationToken"]').val());
+          },
+          success: function (data) {
+            window.location.replace("@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)PresetFiles?n=PresetFileSaved");
+          },
+          error: function (jqxhr, errorText, thrownError) {
+            $.Notification.notify('error', 'top left', 'Error saving preset file!', 'Error message: ' + errorText);
+          }
+        });
+
+        return false;
+      });
+
+      @if (!Model.NotifyType.Equals("") && !Model.NotifyHeadline.Equals("") && !Model.NotifyMessage.Equals("")) {
+        <text>
+        $.Notification.notify('@Model.NotifyType', 'top left', '@Model.NotifyHeadline', '@Model.NotifyMessage');
+        </text>
+      }
+    });
+  </script>
+}

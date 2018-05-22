@@ -1,0 +1,92 @@
+/* =============
+   Tabs
+============= */
+
+.tab-content {
+  padding: 20px 0 0 0;
+}
+
+.nav-tabs {
+  border-bottom: 1px solid lighten($dark,10%);
+}
+
+.nav-tabs > li > a, .nav-pills > li > a {
+  color: $muted;
+  font-weight: 600;
+}
+
+.nav-pills .nav-item.show .nav-link, .nav-pills .nav-link.active {
+  background-color: $custom;
+}
+
+/* Vertial tab */
+.tabs-vertical-env {
+
+  .tab-content {
+    background: lighten($dark,2%);
+    display: table-cell;
+    padding: 0 0 0 20px;
+    margin-bottom: 0;
+    vertical-align: top;
+  }
+  .nav.tabs-vertical {
+    display: table-cell;
+    min-width: 120px;
+    vertical-align: top;
+    width: 150px;
+
+    li > a {
+      color: $muted;
+      white-space: nowrap;
+      font-weight: 600;
+      border-radius: 2px;
+    }
+
+    li > a.active {
+      background-color: $custom;
+      border: 0;
+      color: $white;
+    }
+  }
+}
+
+.tabs-vertical-env-right {
+  .tab-content {
+    padding: 0 20px 0 0;
+  }
+}
+
+.tabs-bordered {
+  border-bottom: 2px solid rgba($muted, 0.2) !important;
+
+  .nav-item {
+    margin-bottom: -2px;
+  }
+}
+
+.tabs-bordered li a, .tabs-bordered li a:hover, .tabs-bordered li a:focus {
+  border: 0 !important;
+  padding: 10px 20px !important;
+}
+
+.tabs-bordered li a.active {
+  border-bottom: 2px solid $custom !important;
+}
+
+/* Navpills */
+.nav-pills > li > a {
+  color: $muted;
+}
+
+.nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+  background-color: $custom;
+}
+
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+  color: $white;
+  background-color: lighten($dark,10%);
+  border-color: lighten($dark,10%) lighten($dark,10%) lighten($dark,10%);
+}
+.nav-tabs .nav-link:focus, .nav-tabs .nav-link:hover {
+  border-color: lighten($dark,10%) lighten($dark,10%) lighten($dark,10%);
+}
