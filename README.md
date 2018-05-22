@@ -1,6 +1,7 @@
 # Profit Trailer Magic
-Your goto address for the most complete all-in-one addon for Profit Trailer.
+Profit Trailer Magic is an open source and the most complete all-in-one addon for the cryptocurrency trading bot Profit Trailer.
 
+### Feature Highlights:
 - Define multiple individual Profit Trailer settings as **presets for different market conditions**. PTMagic will apply them automatically based on trends for **your trading pairs**.  
 
 - Never run out of balance again when using DCA. The PTMagic **DCA calculator** helps you to find the perfect DCA values for your balance, pairs and DCA levels.  
@@ -34,6 +35,9 @@ https://github.com/Legedric/ptmagic/releases
 - Sales Analyzer tracking your sales and providing detailed overview of your profits
 - DCA Calculator to help you in adjusting your settings to your needs
 - **It's FREE!**
+
+# Want to become a contributor?
+Read our [CONTRIBUTING.md](https://github.com/Legedric/ptmagic/blob/master/CONTRIBUTING.md) and start working on your first pull request.
 
 # Screenshots
 ![Dashboard](http://www.profit-trailer-magic.com/assets/img-temp/mockups/dashboard.png)
