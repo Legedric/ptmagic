@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <Deterministic>False</Deterministic>
+    <RunWorkingDirectory>$(MSBuildStartupDirectory)/PTMagic</RunWorkingDirectory>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.1-beta3" />
+    <PackageReference Include="NLog" Version="4.5.0-rc04" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.0.0-rtm-rc6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj" />
+    <None Include="nlog.config" CopyToOutputDirectory="Always" />
+    <None Include="settings.general.json" CopyToOutputDirectory="Always" />
+    <None Include="settings.analyzer.json" CopyToOutputDirectory="Always" />
+    <None Include="Start PTMagic.cmd" CopyToOutputDirectory="Always" />
+    <None Include="Start PTMagic Monitor.cmd" CopyToOutputDirectory="Always" />
+    <Content Include="_presets\**" CopyToOutputDirectory="Always" />
+    
+  </ItemGroup>
+
+</Project>

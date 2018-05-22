@@ -1,0 +1,477 @@
+﻿@page
+@model SettingsGeneralModel
+@{
+  ViewData["Title"] = "";
+}
+
+@section Styles {
+  <link href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/switchery/css/switchery.min.css" rel="stylesheet" />
+}
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card-box">
+      <h4 class="m-t-0 header-title">General Settings</h4>
+
+      <p>
+        In this area you may change the settings of your <b>settings.general.json</b> file. Please use this with caution as all settings you saved here will directly affect your PT Magic bot.
+      </p>
+      <p class="text-danger">Please note: When you save your settings using this interface, all existing comments will be removed from your settings.general.json!</p>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card-box">
+      <h4 class="m-t-0 header-title">Restore Backup<span></span></h4>
+
+      <p>
+        PT Magic automatically creates a backup when you save your settings.general.json file using this interface. In case you notice some suspicious behaviour or just want to go back to your previous settings, you may restore the most recent backup here.
+      </p>
+
+      <button class="btn btn-ptmagic text-uppercase waves-effect waves-light" data-toggle="modal" data-target="#modalRestoreBackup" type="submit">
+        Restore Backup
+      </button>
+    </div>
+  </div>
+</div>
+
+<form class="form-horizontal m-t-20" method="post">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card-box">
+        <h4 class="m-t-0 header-title">Application</h4>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Is Enabled <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Enables the PTMagic bot."></i></label>
+          <div class="col-md-8">
+            <input type="checkbox" name="Application_IsEnabled" checked="@(Model.PTMagicConfiguration.GeneralSettings.Application.IsEnabled)" data-plugin="switchery" data-color="#81c868" data-size="small" />
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Test Mode <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="If TestMode is active, no properties files will be changed"></i></label>
+          <div class="col-md-8">
+            <input type="checkbox" name="Application_TestMode" checked="@(Model.PTMagicConfiguration.GeneralSettings.Application.TestMode)" data-plugin="switchery" data-color="#81c868" data-size="small" />
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Profit Trailer Major Version <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Major version of your Profit Trailer."></i></label>
+          <div class="col-md-8">
+            @Model.PTMagicConfiguration.GeneralSettings.Application.ProfitTrailerMajorVersion
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Profit Trailer Path <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Path to your Profit Trailer main directory."></i></label>
+          <div class="col-md-8">
+            @Model.PTMagicConfiguration.GeneralSettings.Application.ProfitTrailerPath
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Profit Trailer License <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Your Profit Trailer license key (needed to change your settings for PT 2.0 and above)"></i></label>
+          <div class="col-md-8">
+            @Model.PTMagicConfiguration.GetProfitTrailerLicenseKeyMasked()
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Profit Trailer Monitor URL <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The URL to your profit trailer monitor (needed to change your settings for PT 2.0 and above)"></i></label>
+          <div class="col-md-8">
+            <a href="@Model.PTMagicConfiguration.GeneralSettings.Application.ProfitTrailerMonitorURL" target="_blank">@Model.PTMagicConfiguration.GeneralSettings.Application.ProfitTrailerMonitorURL</a>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Profit Trailer Default Setting Name <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Your Profit Trailer default setting name (needed to change your settings for PT 2.0 and above)"></i></label>
+          <div class="col-md-8">
+            @Model.PTMagicConfiguration.GeneralSettings.Application.ProfitTrailerDefaultSettingName
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Exchange <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The exchange your are running Profit Trailer on."></i></label>
+          <div class="col-md-8">
+            <select name="Application_Exchange" class="form-control">
+              <option selected="@(Model.PTMagicConfiguration.GeneralSettings.Application.Exchange.Equals("Binance", StringComparison.InvariantCultureIgnoreCase))">Binance</option>
+              <option selected="@(Model.PTMagicConfiguration.GeneralSettings.Application.Exchange.Equals("Bittrex", StringComparison.InvariantCultureIgnoreCase))">Bittrex</option>
+              <option selected="@(Model.PTMagicConfiguration.GeneralSettings.Application.Exchange.Equals("Poloniex", StringComparison.InvariantCultureIgnoreCase))">Poloniex</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Start Balance <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The balance you had in your wallet when you started working with Profit Trailer."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="Application_StartBalance" value="@Model.PTMagicConfiguration.GeneralSettings.Application.StartBalance.ToString(new System.Globalization.CultureInfo("en-US"))">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Timezone Offset <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Your timezone offset from GMT."></i></label>
+          <div class="col-md-8">
+            <select name="Application_TimezoneOffset" class="form-control">
+              @Html.Raw(Model.GetTimezoneSelection())
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Always Load Default Before Switch <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="If this is enabled, PTMagic will always load default settings before switching to another setting."></i></label>
+          <div class="col-md-8">
+            <input type="checkbox" name="Application_AlwaysLoadDefaultBeforeSwitch" checked="@(Model.PTMagicConfiguration.GeneralSettings.Application.AlwaysLoadDefaultBeforeSwitch)" data-plugin="switchery" data-color="#81c868" data-size="small" />
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Flood Protection Minutes <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="If a price trend is just zig-zagging around its trigger, you may want to protect your settings from getting switched back and forth every minute."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="Application_FloodProtectionMinutes" value="@Model.PTMagicConfiguration.GeneralSettings.Application.FloodProtectionMinutes.ToString()">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Instance Name <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The name of the instance of this bot. This will be used in your monitor and your Telegram messages. In case you are running more than one bot, you may set different names to separate them."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="Application_InstanceName" value="@Model.PTMagicConfiguration.GeneralSettings.Application.InstanceName">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card-box">
+        <h4 class="m-t-0 header-title">Monitor</h4>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Is Password Protected <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Defines if your monitor will be asking to setup a password on its first start."></i></label>
+          <div class="col-md-8">
+            <input type="checkbox" name="Monitor_IsPasswordProtected" checked="@(Model.PTMagicConfiguration.GeneralSettings.Monitor.IsPasswordProtected)" data-plugin="switchery" data-color="#81c868" data-size="small" />
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Open Browser On Start <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="If active, a browser window will open as soon as you start the monitor."></i></label>
+          <div class="col-md-8">
+            <input type="checkbox" name="Monitor_OpenBrowserOnStart" checked="@(Model.PTMagicConfiguration.GeneralSettings.Monitor.OpenBrowserOnStart)" data-plugin="switchery" data-color="#81c868" data-size="small" />
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Port <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The port you want to run your monitor on"></i></label>
+          <div class="col-md-8">
+            @Model.PTMagicConfiguration.GeneralSettings.Monitor.Port
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">RootUrl <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The root URL of your monitor website"></i></label>
+          <div class="col-md-8">
+            @Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Graph Interval Minutes <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The interval for the monitor market trend graph to draw points."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="Monitor_GraphIntervalMinutes" value="@Model.PTMagicConfiguration.GeneralSettings.Monitor.GraphIntervalMinutes.ToString(new System.Globalization.CultureInfo("en-US"))">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Graph Max Timeframe Hours <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="This defines the timeframe that your graph for market trends covers."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="Monitor_GraphMaxTimeframeHours" value="@Model.PTMagicConfiguration.GeneralSettings.Monitor.GraphMaxTimeframeHours.ToString(new System.Globalization.CultureInfo("en-US"))">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Refresh Seconds <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The refresh interval of your monitor main page."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="Monitor_RefreshSeconds" value="@Model.PTMagicConfiguration.GeneralSettings.Monitor.RefreshSeconds.ToString(new System.Globalization.CultureInfo("en-US"))">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Bag AnalyzerRefresh Seconds <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The refresh interval of your monitor bag analyzer page."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="Monitor_BagAnalyzerRefreshSeconds" value="@Model.PTMagicConfiguration.GeneralSettings.Monitor.BagAnalyzerRefreshSeconds.ToString(new System.Globalization.CultureInfo("en-US"))">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Buy AnalyzerRefresh Seconds <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The refresh interval of your monitor buy analyzer page."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="Monitor_BuyAnalyzerRefreshSeconds" value="@Model.PTMagicConfiguration.GeneralSettings.Monitor.BuyAnalyzerRefreshSeconds.ToString(new System.Globalization.CultureInfo("en-US"))">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Link Platform <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The platform to which the pair name will link if you click on it."></i></label>
+          <div class="col-md-8">
+            <select name="Monitor_LinkPlatform" class="form-control">
+              <option selected="@(Model.PTMagicConfiguration.GeneralSettings.Monitor.LinkPlatform.Equals("TradingView", StringComparison.InvariantCultureIgnoreCase))">TradingView</option>
+              <option selected="@(Model.PTMagicConfiguration.GeneralSettings.Monitor.LinkPlatform.Equals("Exchange", StringComparison.InvariantCultureIgnoreCase))">Exchange</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Max Top Markets <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The amount of top markets being show in your Sales Analyzer."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="Monitor_MaxTopMarkets" value="@Model.PTMagicConfiguration.GeneralSettings.Monitor.MaxTopMarkets.ToString(new System.Globalization.CultureInfo("en-US"))">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Max Daily Summaries <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The amount of Last Days being shown in your Sales Analyzer."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="Monitor_MaxDailySummaries" value="@Model.PTMagicConfiguration.GeneralSettings.Monitor.MaxDailySummaries.ToString(new System.Globalization.CultureInfo("en-US"))">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Max Monthly Summaries <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The amount of Last Months being shown in your Sales Analyzer."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="Monitor_MaxMonthlySummaries" value="@Model.PTMagicConfiguration.GeneralSettings.Monitor.MaxMonthlySummaries.ToString(new System.Globalization.CultureInfo("en-US"))">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Max Dashboard Buy Entries <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The amount of entries being shown in your dashboard for possible buys."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="Monitor_MaxDashboardBuyEntries" value="@Model.PTMagicConfiguration.GeneralSettings.Monitor.MaxDashboardBuyEntries.ToString(new System.Globalization.CultureInfo("en-US"))">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Max Dashboard Bag Entries <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The amount of top markets being shown in your dashboard for pairs and dca."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="Monitor_MaxDashboardBagEntries" value="@Model.PTMagicConfiguration.GeneralSettings.Monitor.MaxDashboardBagEntries.ToString(new System.Globalization.CultureInfo("en-US"))">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Max DCA Pairs <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="The number of pairs (rows) to be shown in your DCA calculator."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="Monitor_MaxDCAPairs" value="@Model.PTMagicConfiguration.GeneralSettings.Monitor.MaxDCAPairs.ToString(new System.Globalization.CultureInfo("en-US"))">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Default DCA Mode <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Set the default mode of your DCA calculator.."></i></label>
+          <div class="col-md-8">
+            <select name="Monitor_DefaultDCAMode" class="form-control">
+              <option selected="@(Model.PTMagicConfiguration.GeneralSettings.Monitor.DefaultDCAMode.Equals("Simple", StringComparison.InvariantCultureIgnoreCase))">Simple</option>
+              <option selected="@(Model.PTMagicConfiguration.GeneralSettings.Monitor.DefaultDCAMode.Equals("Advanced", StringComparison.InvariantCultureIgnoreCase))">Advanced</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card-box">
+        <h4 class="m-t-0 header-title">Backup</h4>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Is Enabled <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Enables a backup procedure for your properties files. Before every switch PTMagic will backup the current properties."></i></label>
+          <div class="col-md-8">
+            <input type="checkbox" name="Backup_IsEnabled" checked="@(Model.PTMagicConfiguration.GeneralSettings.Backup.IsEnabled)" data-plugin="switchery" data-color="#81c868" data-size="small" />
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Max Hours <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Max number of hours to keep backup files."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="Backup_MaxHours" value="@Model.PTMagicConfiguration.GeneralSettings.Backup.MaxHours.ToString(new System.Globalization.CultureInfo("en-US"))">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card-box">
+        <h4 class="m-t-0 header-title">Telegram</h4>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Is Enabled <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Enables PT Magic to send Telegram messages."></i></label>
+          <div class="col-md-8">
+            <input type="checkbox" name="Telegram_IsEnabled" checked="@(Model.PTMagicConfiguration.GeneralSettings.Telegram.IsEnabled)" data-plugin="switchery" data-color="#81c868" data-size="small" />
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Bot Token <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Your Telegram bot token."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="Telegram_BotToken" id="Telegram_BotToken" value="@Model.PTMagicConfiguration.GeneralSettings.Telegram.BotToken">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Chat Id <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Your Telegram Chat ID."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="Telegram_ChatId" id="Telegram_ChatId" value="@Model.PTMagicConfiguration.GeneralSettings.Telegram.ChatId">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Silent Mode <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="If SilentMode is active, no notification sound or vibration will happen when the bot sends a Telegram message."></i></label>
+          <div class="col-md-8">
+            <input type="checkbox" name="Telegram_SilentMode" id="Telegram_SilentMode" checked="@(Model.PTMagicConfiguration.GeneralSettings.Telegram.SilentMode)" data-plugin="switchery" data-color="#81c868" data-size="small" />
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label"></label>
+          <div class="col-md-8">
+            <button id="btn-test-telegram" class="btn btn-ptmagic btn-block text-uppercase waves-effect waves-light">
+              Send Telegram Test Message
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (!Model.ValidationMessage.Equals("")) {
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card-box text-danger">
+          @Model.ValidationMessage
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card-box">
+        <a class="btn btn-ptmagic btn-block text-uppercase waves-effect waves-light" data-toggle="modal" data-target="#modalSaveSettings" href="#">
+          Save Settings
+        </a>
+      </div>
+    </div>
+  </div>
+</form>
+
+<!-- Modal -->
+<div class="modal fade" id="modalRestoreBackup" tabindex="-1" role="dialog" aria-labelledby="modalRestoreBackupTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalRestoreBackupTitle">Are you sure?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Do you really want to restore a backup of your settings.general.json and overwrite all current settings?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ptmagic text-uppercase waves-effect waves-light btn-restorebackup" data-datatarget="settings.general.json">Yes, do it!</button>
+        <button type="button" class="btn btn-secondary text-uppercase" data-dismiss="modal">No...</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modalSaveSettings" tabindex="-1" role="dialog" aria-labelledby="modalSaveSettingsTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalSaveSettingsTitle">Are you sure?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Do you really want to save the current settings?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ptmagic text-uppercase waves-effect waves-light btn-savesettings">Yes, do it!</button>
+        <button type="button" class="btn btn-secondary text-uppercase" data-dismiss="modal">No...</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/switchery/js/switchery.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+      $('.text-autocolor').autocolor(false);
+
+      $('#btn-test-telegram').click(function () {
+
+        var telegramSettings = { Telegram_BotToken: $('#Telegram_BotToken').val(), Telegram_ChatId: $('#Telegram_ChatId').val(), Telegram_SilentMode: $('#Telegram_SilentMode').val() };
+        $.ajax({
+          type: 'POST',
+          url: "@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)_post/TestTelegram",
+          contentType: "application/json; charset=utf-8",
+          dataType: "json",
+          data: JSON.stringify(telegramSettings),
+          beforeSend: function (xhr) {
+            xhr.setRequestHeader("XSRF-TOKEN",
+              $('input:hidden[name="__RequestVerificationToken"]').val());
+          },
+          success: function (data) {
+            $.Notification.notify('success', 'top left', 'Telegram message sent!', 'Telegram test message sent successfully.');
+          },
+          error: function (jqxhr, errorText, thrownError) {
+            $.Notification.notify('error', 'top left', 'Error sending Telegram message!', 'Error message: ' + errorText);
+          }
+        });
+        return false;
+      });
+
+      $(document).on('click', '.btn-savesettings', function () {
+        $('form').submit();
+      });
+
+      $('.btn-restorebackup').click(function () {
+        var dataTarget = $(this).data('datatarget');
+
+        var postValues = { File: dataTarget };
+        $.ajax({
+          type: 'POST',
+          url: "@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)_post/RestoreBackup",
+          contentType: "application/json; charset=utf-8",
+          dataType: "json",
+          data: JSON.stringify(postValues),
+          beforeSend: function (xhr) {
+            xhr.setRequestHeader("XSRF-TOKEN",
+              $('input:hidden[name="__RequestVerificationToken"]').val());
+          },
+          success: function (data) {
+            window.location.replace("@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)SettingsGeneral?n=BackupRestored");
+          },
+          error: function (jqxhr, errorText, thrownError) {
+            $.Notification.notify('error', 'top left', 'Error restoring backup!', 'Error message: ' + errorText);
+          }
+        });
+
+        return false;
+      });
+
+      @if (!Model.NotifyType.Equals("") && !Model.NotifyHeadline.Equals("") && !Model.NotifyMessage.Equals("")) {
+        <text>
+      $.Notification.notify('@Model.NotifyType', 'top left', '@Model.NotifyHeadline', '@Model.NotifyMessage');
+      window.history.pushState('@Model.PTMagicConfiguration.GeneralSettings.Application.InstanceName Monitor', '@Model.PTMagicConfiguration.GeneralSettings.Application.InstanceName Monitor', '@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)SettingsGeneral');
+        </text>
+      }
+    });
+  </script>
+}

@@ -1,0 +1,54 @@
+﻿@page
+@model BuyListModel
+@{
+  Layout = null;
+
+  System.Reflection.PropertyInfo propertyInfo = typeof(Core.Main.DataObjects.PTMagicData.BuyLogData).GetProperty(Model.SortFieldId);
+  List<Core.Main.DataObjects.PTMagicData.BuyLogData> buyLogResult = Model.PTData.BuyLog.OrderByDescending(d => propertyInfo.GetValue(d, null)).ToList();
+  if (Model.SortDirection.Equals("ASC")) {
+    buyLogResult = Model.PTData.BuyLog.OrderBy(d => propertyInfo.GetValue(d, null)).ToList();
+  }
+}
+
+@foreach (Core.Main.DataObjects.PTMagicData.BuyLogData buyLogEntry in buyLogResult) {
+  Core.Main.DataObjects.PTMagicData.MarketPairSummary mps = null;
+  if (Model.Summary.MarketSummary.ContainsKey(buyLogEntry.Market)) {
+    mps = Model.Summary.MarketSummary[buyLogEntry.Market];
+  }
+
+  bool isTrailingBuyActive = buyLogEntry.IsTrailing;
+  if (buyLogEntry.BuyStrategies.Count > 0) {
+    isTrailingBuyActive = (buyLogEntry.BuyStrategies.FindAll(bs => !bs.IsTrailing).Count == 0);
+  }
+
+  bool buyDisabled = false;
+  string buyStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, buyLogEntry.BuyStrategies, buyLogEntry.BuyStrategy, isTrailingBuyActive);
+  if (!Core.ProfitTrailer.StrategyHelper.IsValidStrategy(buyStrategyText, true)) {
+    buyDisabled = true;
+  }
+
+  string currentValueText = Core.ProfitTrailer.StrategyHelper.GetCurrentValueText(buyLogEntry.BuyStrategies, buyLogEntry.BuyStrategy, buyLogEntry.CurrentLowBBValue, buyLogEntry.CurrentValue, true);
+  string triggerValueText = Core.ProfitTrailer.StrategyHelper.GetTriggerValueText(Model.Summary, buyLogEntry.BuyStrategies, buyLogEntry.BuyStrategy, buyLogEntry.BBTrigger, buyLogEntry.TriggerValue, 0, true);
+  <tr>
+    @if (mps != null && (mps.ActiveSingleSettings == null || mps.ActiveSingleSettings.Count == 0)) {
+      <th class="align-top"><a href="@Core.Helper.SystemHelper.GetMarketLink(Model.PTMagicConfiguration.GeneralSettings.Monitor.LinkPlatform,Model.PTMagicConfiguration.GeneralSettings.Application.Exchange, buyLogEntry.Market, Model.Summary.MainMarket)" target="_blank">@buyLogEntry.Market</a></th>
+    } else {
+      <th class="align-top"><a href="@Core.Helper.SystemHelper.GetMarketLink(Model.PTMagicConfiguration.GeneralSettings.Monitor.LinkPlatform,Model.PTMagicConfiguration.GeneralSettings.Application.Exchange, buyLogEntry.Market, Model.Summary.MainMarket)" target="_blank">@buyLogEntry.Market</a> <i class="fa fa-exclamation-triangle text-highlight" data-toggle="tooltip" data-placement="top" data-html="true" title="@await Component.InvokeAsync("PairIcon", mps)" data-template="<div class='tooltip' role='tooltip'><div class='tooltip-arrow'></div><div class='tooltip-inner pair-tooltip'></div></div>"></i></th>
+    }
+    @if (buyDisabled) {
+      <td>@Html.Raw(buyStrategyText)</td>
+    } else {
+      <td>@Html.Raw(buyStrategyText)</td>
+    }
+    <td class="text-right">@Html.Raw(currentValueText)</td>
+    <td class="text-right">@Html.Raw(triggerValueText)</td>
+    <td class="text-right">@buyLogEntry.CurrentPrice.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+  </tr>
+}
+
+
+<script type="text/javascript">
+  $(document).ready(function () {
+
+  });
+</script>

@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="The most complete all-in-one addon for Profit Trailer cryptocurrency trading bot." />
+  <meta name="robots" content="NOINDEX, NOFOLLOW" />
+  <link rel="shortcut icon" href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)favicon.ico">
+
+  <title>@Model.PTMagicConfiguration.GeneralSettings.Application.InstanceName Monitor @ViewData["Title"]</title>
+
+  @RenderSection("Styles", required: false)
+
+  <link href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+  <link href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/css/icons.css" rel="stylesheet" type="text/css" />
+  <link href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/css/style.css" rel="stylesheet" type="text/css" />
+  <link href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/css/custom.css?v=@Html.Raw(Model.CurrentBotVersion)" rel="stylesheet" type="text/css" />
+
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/js/modernizr.min.js"></script>
+</head>
+
+
+<body>
+  <!-- Navigation Bar-->
+  <header id="topnav">
+    <div class="topbar-main">
+      <div class="container-fluid">
+
+        <!-- Logo container-->
+        <div class="logo">
+          <a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)" class="logo"><i class="fa fa-magic text-ptmagic"></i> <span class="text-ptmagic">PTMagic</span></a>
+          <span class="logo-version">
+            v<span>@Model.CurrentBotVersion</span>
+            @if (!Core.Helper.SystemHelper.IsRecentVersion(Model.CurrentBotVersion, Model.LatestVersion)) {
+              <a href="https://github.com/Legedric/ptmagic/releases" target="_blank"><i class="fa fa-exclamation-triangle text-warning" data-toggle="tooltip" data-placement="top" title="Your PT Magic is out of date. Click here to get to the latest release."></i></a>
+            } else {
+              <i class="fa fa-check text-success" data-toggle="tooltip" data-placement="top" title="Your PT Magic is up to date."></i>
+            }
+          </span>
+        </div>
+        <!-- End Logo container-->
+
+
+        <div class="menu-extras topbar-custom">
+          <ul class="list-inline float-right mb-0">
+
+            <li class="menu-item list-inline-item">
+              <!-- Mobile menu toggle-->
+              <a class="navbar-toggle nav-link">
+                <div class="lines">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </a>
+              <!-- End mobile menu toggle-->
+            </li>
+            <li id="ticker-widgets" class="list-inline-item ticker-widgets"></li>
+          </ul>
+
+        </div>
+        <!-- end menu-extras -->
+
+        <div class="clearfix"></div>
+
+      </div> <!-- end container -->
+    </div>
+    <!-- end topbar-main -->
+
+    <div class="navbar-custom">
+      <div class="container-fluid">
+        <div id="navigation">
+          <!-- Navigation Menu-->
+          <ul class="navigation-menu">
+
+            <li>
+              <a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)"><i class="fa fa-dashboard fa-2x"></i> <span> Dashboard </span></a>
+            </li>
+
+            <li class="has-submenu">
+              <a href="#"><i class="fa fa-line-chart fa-2x"></i> <span> Analyzers </span> <span class="menu-arrow"></span></a>
+              <ul class="submenu">
+                <li><a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)BuyAnalyzer"><i class="fa fa-shopping-cart"></i> Buy Analyzer</a></li>
+                <li><a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)BagAnalyzer"><i class="fa fa-shopping-bag"></i> Bag Analyzer</a></li>
+                <li><a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)SalesAnalyzer"><i class="fa fa-money"></i> Sales Analyzer</a></li>
+                <li><a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)MarketAnalyzer"><i class="fa fa-line-chart"></i> Market Analyzer</a></li>
+              </ul>
+            </li>
+
+            <li class="has-submenu">
+              <a href="#"><i class="fa fa-sliders fa-2x"></i> <span> Control </span> <span class="menu-arrow"></span></a>
+              <ul class="submenu">
+                <li><a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)DCACalculator"><i class="fa fa-calculator"></i> DCA Calculator</a></li>
+                <li><a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)StatusSummary"><i class="fa fa-clipboard"></i> Status & Summary</a></li>
+                <li><a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)ManageSMS"><i class="fa fa-wrench"></i> Manage Single Market Settings</a></li>
+              </ul>
+            </li>
+
+            @if (Model.PTMagicConfiguration.GeneralSettings.Monitor.IsPasswordProtected) {
+              <li class="has-submenu">
+                <a href="#"><i class="fa fa-cog fa-2x"></i> <span> Settings </span> <span class="menu-arrow"></span></a>
+                <ul class="submenu">
+                  <li><a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)SettingsGeneral"><i class="fa fa-power-off"></i> General</a></li>
+                  <li><a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)SettingsAnalyzer"><i class="fa fa-magic"></i> Analyzer</a></li>
+                  <li><a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)Transactions"><i class="fa fa-exchange"></i> Transactions</a></li>
+                  <li><a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)PresetFiles"><i class="fa fa-edit"></i> Presets Files</a></li>
+                </ul>
+              </li>
+            } else {
+              <li>
+                <a data-toggle="tooltip" data-placement="top" title="Settings menu is only accessible when you protect your monitor with a password!"><i class="fa fa-lock text-danger"></i> <span> Settings</span></a>
+              </li>
+            }
+
+            <li>
+              <a href="https://github.com/Legedric/ptmagic/wiki" target="_blank"><i class="fa fa-book fa-2x"></i> <span> Wiki </span></a>
+            </li>
+
+            <li>
+              <a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Application.ProfitTrailerMonitorURL)" target="_blank"><i class="fa fa-desktop fa-2x"></i> <span> PT Monitor <small class="text-muted">(@Html.Raw(Model.Summary.MainMarket + "@" + Model.PTMagicConfiguration.GeneralSettings.Application.Exchange))</small></span></a>
+            </li>
+          </ul>
+          <!-- End navigation menu -->
+        </div> <!-- end #navigation -->
+      </div> <!-- end container -->
+    </div> <!-- end navbar-custom -->
+  </header>
+  <!-- End Navigation Bar-->
+
+  <div class="wrapper">
+    <div class="container-fluid">
+
+      @RenderBody()
+
+    </div> <!-- container -->
+
+  </div> <!-- content -->
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-center">
+          <a href="http://www.profit-trailer-magic.com/" target="_blank">www.profit-trailer-magic.com</a>
+          |
+          <a href="https://github.com/Legedric/ptmagic" target="_blank">GitHub</a>
+          |
+          <a href="https://github.com/Legedric/ptmagic/wiki" target="_blank">Wiki</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!-- End Footer -->
+
+
+
+  <script>
+    var resizefunc = [];
+  </script>
+
+  <!-- jQuery  -->
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/js/jquery.min.js"></script>
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/js/popper.min.js"></script><!-- Popper for Bootstrap -->
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/js/bootstrap.min.js"></script>
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/js/jquery.slimscroll.js"></script>
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/js/jquery.scrollTo.min.js"></script>
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/js/custom.js?v=@Html.Raw(Model.CurrentBotVersion)"></script>
+
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/notifyjs/js/notify.js"></script>
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/notifications/notify-metro.js"></script>
+
+  @RenderSection("Scripts", required: false)
+
+  <script type="text/javascript">
+    var errCount = [];
+    var interval;
+    var loadWidgets = function () {
+      $('[data-toggle="tooltip"]').tooltip();
+      $("#ticker-widgets").load('@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)_get/TickerWidgets', '', function (responseText, textStatus, XMLHttpRequest) {
+        if (textStatus == 'error') {
+          errCount["TickerWidgets"]++;
+          if (errCount["TickerWidgets"] > 2) {
+            $.Notification.notify('error', 'top left', 'Ticker update failed!', 'PTMagic Monitor failed to update data. If this error does not go away by itself, please check the connection to your hosting PC.')
+          }
+        } else if (responseText == 'returntologin') {
+          window.location.replace("@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)Login");
+        } else {
+          errCount["TickerWidgets"] = 0;
+        }
+      });
+    };
+
+    $(document).ready(function () {
+      errCount["TickerWidgets"] = 0;
+      loadWidgets();
+      interval = setInterval(function () { loadWidgets(); }, 5 * 1000);
+
+      $('[data-toggle="tooltip"]').tooltip()
+      $('.text-autocolor').autocolor(false);
+      $('.text-autocolor-saw').autocolor(true);
+    });
+  </script>
+
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/js/jquery.core.js?v=@Html.Raw(Model.CurrentBotVersion)"></script>
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/js/jquery.app.js?v=@Html.Raw(Model.CurrentBotVersion)"></script>
+</body>
+</html>

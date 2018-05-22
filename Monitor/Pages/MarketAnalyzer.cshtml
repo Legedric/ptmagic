@@ -1,0 +1,245 @@
+﻿@page
+@model MarketAnalyzerModel
+@{
+  ViewData["Title"] = "";
+}
+
+@section Styles {
+  <link href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/tablesaw/css/tablesaw.css" rel="stylesheet" type="text/css" />
+  <link href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/nvd3/nv.d3.min.css" rel="stylesheet" type="text/css" />
+}
+<div class="row">
+  <div class="col-sm-12">
+    <div class="card-box">
+      <h4 class="m-t-0 m-b-20 header-title"><b>Market Trend Averages</b></h4>
+
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th class="text-right">Markets</th>
+            <th class="text-right">Timeframe</th>
+            <th class="text-right">Change</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (Core.Main.DataObjects.PTMagicData.MarketTrend marketTrend in Model.MarketTrends.OrderBy(mt => mt.TrendMinutes)) {
+            if (Model.Summary.MarketTrendChanges.ContainsKey(marketTrend.Name)) {
+              double trendChange = Model.Summary.MarketTrendChanges[marketTrend.Name].OrderByDescending(mtc => mtc.TrendDateTime).First().TrendChange;
+              string trendChangeOutput = trendChange.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"));
+
+              int marketCount = marketTrend.MaxMarkets;
+              string marketCountString = marketCount.ToString();
+
+              if (marketCount == 0) {
+                marketCountString = "All";
+              } else if (marketCount > Model.Summary.MarketSummary.Keys.Count && marketTrend.Platform.Equals("Exchange", StringComparison.InvariantCultureIgnoreCase)) {
+                marketCountString = Model.Summary.MarketSummary.Keys.Count.ToString();
+              }
+              <tr>
+                <td>@Core.Helper.SystemHelper.SplitCamelCase(marketTrend.Name)</td>
+                <td class="text-right">@marketCountString</td>
+                <td class="text-right">@Core.Helper.SystemHelper.GetProperDurationTime(marketTrend.TrendMinutes * 60, false)</td>
+                <td class="text-right text-autocolor">@trendChangeOutput%</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+
+      @if (!Model.TrendChartDataJSON.Equals("")) {
+        <div class="trend-chart">
+          <svg style="height:205px;width:100%"></svg>
+        </div>
+      } else {
+        <p>Not able to load graph, no market trend data found.<br />If you still do not see a graph after more than hour, report an issue.</p>
+      }
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-12">
+    <div class="card-box">
+
+      <h4 class="m-t-0 header-title"><b>Trend Overview for @Model.Summary.MarketSummary.Keys.Count markets on @Model.PTMagicConfiguration.GeneralSettings.Application.Exchange</b></h4>
+
+      <div class="row m-b-20">
+        <div class="col-md-6"><button type="button" class="btn btn-block btn-trend-relation btn-lg btn-ptmagic waves-effect waves-light" data-trend-relation="absolute">Absolute Trend Changes</button></div>
+        <div class="col-md-6"><button type="button" class="btn btn-block btn-trend-relation btn-lg btn-ptmagic btn-custom waves-effect waves-light" data-trend-relation="relative">Relative Trend Changes</button></div>
+      </div>
+
+      <div class="row m-b-20">
+        <div class="col-md-6">
+          The <i>absolute trend changes</i> are the trend changes for each coin on its own for the specified timeframe without putting the change into any relation with the overall market.
+        </div>
+        <div class="col-md-6">
+          The <i>relative trend changes</i> are the trend changes for each coin in relation (or compared) to the overall market trend for the specified timeframe.
+        </div>
+      </div>
+
+      @{
+        List<Core.Main.DataObjects.PTMagicData.MarketTrend> marketTrends = Model.MarketTrends.FindAll(mt => mt.Platform.Equals("Exchange") && mt.DisplayOnMarketAnalyzerList);
+      }
+
+      <table id="trends-absolute" class="tablesaw table m-b-0" data-tablesaw-sortable data-tablesaw-sortable-switch>
+        <thead>
+          <tr>
+            <th scope="col" data-tablesaw-priority="persist" data-toggle="tooltip" data-placement="top" title="Trading status">TRA</th>
+            <th scope="col" data-tablesaw-priority="persist" data-toggle="tooltip" data-placement="top" title="Sell Only Mode status">SOM</th>
+            <th scope="col" data-tablesaw-priority="persist" data-toggle="tooltip" data-placement="top" title="DCA status">DCA</th>
+            <th scope="col" data-tablesaw-sortable-col data-tablesaw-sortable-default-col>Market Name</th>
+            <th scope="col" data-tablesaw-sortable-col class="text-right">Last Price</th>
+            <th scope="col" data-tablesaw-sortable-col class="text-right">Volume</th>
+            @foreach (Core.Main.DataObjects.PTMagicData.MarketTrend marketTrend in marketTrends) {
+              <th scope="col" data-tablesaw-sortable-col class="text-right">@Core.Helper.SystemHelper.SplitCamelCase(marketTrend.Name)</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (string market in Model.Summary.MarketSummary.Keys.OrderBy(m => m)) {
+            Core.Main.DataObjects.PTMagicData.MarketPairSummary mps = Model.Summary.MarketSummary[market];
+            int marketTrendsDisplayed = 0;
+            <tr>
+              <th>
+                @if (mps.IsTradingEnabled) {
+                  <i class="fa fa-check"></i>
+                }
+              </th>
+              <th>
+                @if (mps.IsSOMActive) {
+                  <i class="fa fa-check"></i>
+                }
+              </th>
+              <th>
+                @if (mps.IsDCAEnabled) {
+                  <i class="fa fa-check"></i>
+                }
+              </th>
+              @if (mps.ActiveSingleSettings == null || mps.ActiveSingleSettings.Count == 0) {
+                <th><a href="@Core.Helper.SystemHelper.GetMarketLink(Model.PTMagicConfiguration.GeneralSettings.Monitor.LinkPlatform,Model.PTMagicConfiguration.GeneralSettings.Application.Exchange, market, Model.Summary.MainMarket)" target="_blank">@market</a></th>
+              } else {
+                <th><a href="@Core.Helper.SystemHelper.GetMarketLink(Model.PTMagicConfiguration.GeneralSettings.Monitor.LinkPlatform,Model.PTMagicConfiguration.GeneralSettings.Application.Exchange, market, Model.Summary.MainMarket)" target="_blank">@market</a> <i class="fa fa-exclamation-triangle text-highlight" data-toggle="tooltip" data-placement="top" data-html="true" title="@await Component.InvokeAsync("PairIcon", mps)" data-template="<div class='tooltip' role='tooltip'><div class='tooltip-arrow'></div><div class='tooltip-inner pair-tooltip'></div></div>"></i></th>
+              }
+              <td class="text-right">@mps.LatestPrice.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US")) @Model.Summary.MainMarket</td>
+              <td class="text-right">@Math.Round(mps.Latest24hVolume, 0).ToString("#,#0", new System.Globalization.CultureInfo("en-US")) @Model.Summary.MainMarket</td>
+              @foreach (Core.Main.DataObjects.PTMagicData.MarketTrend marketTrend in marketTrends) {
+                if (mps.MarketTrendChanges.ContainsKey(marketTrend.Name)) {
+                  marketTrendsDisplayed++;
+                  string trendChangeOutput = mps.MarketTrendChanges[marketTrend.Name].ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"));
+                  <td class="text-right text-autocolor-saw">@trendChangeOutput%</td>
+                }
+              }
+              @for (int i = 0; i < marketTrends.Count - marketTrendsDisplayed; i++) {
+                <td></td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <table id="trends-relative" class="hidden tablesaw table m-b-0" data-tablesaw-sortable data-tablesaw-sortable-switch>
+        <thead>
+          <tr>
+            <th scope="col" data-tablesaw-priority="persist" data-toggle="tooltip" data-placement="top" title="Trading status">TRA</th>
+            <th scope="col" data-tablesaw-priority="persist" data-toggle="tooltip" data-placement="top" title="Sell Only Mode status">SOM</th>
+            <th scope="col" data-tablesaw-priority="persist" data-toggle="tooltip" data-placement="top" title="DCA status">DCA</th>
+            <th scope="col" data-tablesaw-sortable-col data-tablesaw-sortable-default-col>Market Name</th>
+            <th scope="col" data-tablesaw-sortable-col class="text-right">Last Price</th>
+            <th scope="col" data-tablesaw-sortable-col class="text-right">Volume</th>
+            @foreach (Core.Main.DataObjects.PTMagicData.MarketTrend marketTrend in marketTrends) {
+              <th scope="col" data-tablesaw-sortable-col class="text-right">@Core.Helper.SystemHelper.SplitCamelCase(marketTrend.Name)</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (string market in Model.Summary.MarketSummary.Keys.OrderBy(m => m)) {
+            Core.Main.DataObjects.PTMagicData.MarketPairSummary mps = Model.Summary.MarketSummary[market];
+            int marketTrendsDisplayed = 0;
+            <tr>
+              <th>
+                @if (Model.Summary.MarketSummary[market].IsTradingEnabled) {
+                  <i class="fa fa-check"></i>
+                }
+              </th>
+              <th>
+                @if (Model.Summary.MarketSummary[market].IsSOMActive) {
+                  <i class="fa fa-check"></i>
+                }
+              </th>
+              <th>
+                @if (Model.Summary.MarketSummary[market].IsDCAEnabled) {
+                  <i class="fa fa-check"></i>
+                }
+              </th>
+              @if (mps.ActiveSingleSettings == null || mps.ActiveSingleSettings.Count == 0) {
+                <th><a href="@Core.Helper.SystemHelper.GetMarketLink(Model.PTMagicConfiguration.GeneralSettings.Monitor.LinkPlatform,Model.PTMagicConfiguration.GeneralSettings.Application.Exchange, market, Model.Summary.MainMarket)" target="_blank">@market</a></th>
+              } else {
+                <th><a href="@Core.Helper.SystemHelper.GetMarketLink(Model.PTMagicConfiguration.GeneralSettings.Monitor.LinkPlatform,Model.PTMagicConfiguration.GeneralSettings.Application.Exchange, market, Model.Summary.MainMarket)" target="_blank">@market</a> <i class="fa fa-exclamation-triangle text-highlight" data-toggle="tooltip" data-placement="top" data-html="true" title="@await Component.InvokeAsync("PairIcon", mps)" data-template="<div class='tooltip' role='tooltip'><div class='tooltip-arrow'></div><div class='tooltip-inner pair-tooltip'></div></div>"></i></th>
+              }
+              <td class="text-right">@mps.LatestPrice.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+              <td class="text-right">@Math.Round(mps.Latest24hVolume, 0).ToString("#,#0", new System.Globalization.CultureInfo("en-US"))</td>
+              @foreach (Core.Main.DataObjects.PTMagicData.MarketTrend marketTrend in marketTrends) {
+                if (mps.MarketTrendChanges.ContainsKey(marketTrend.Name)) {
+                  marketTrendsDisplayed++;
+                  double relativeTrend = Model.Summary.MarketSummary[market].MarketTrendChanges[marketTrend.Name] - Model.Summary.MarketTrendChanges[marketTrend.Name].OrderByDescending(mtc => mtc.TrendDateTime).First().TrendChange;
+                  string trendChangeOutput = relativeTrend.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"));
+                  <td class="text-right text-autocolor-saw">@trendChangeOutput%</td>
+                }
+              }
+              @for (int i = 0; i < marketTrends.Count - marketTrendsDisplayed; i++) {
+                <td></td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/d3/d3.min.js"></script>
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/nvd3/nv.d3.min.js"></script>
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/tablesaw/js/tablesaw.js?v=@Html.Raw(Model.Summary.Version)"></script>
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/tablesaw/js/tablesaw-init.js"></script>
+
+  <script type="text/javascript">
+    $(function () {
+      $('.btn-trend-relation').click(function () {
+        var relation = $(this).data('trend-relation');
+
+        $('.btn-trend-relation').addClass('btn-custom');
+        $(this).removeClass('btn-custom');
+
+        if (relation == 'absolute') {
+          $('#trends-absolute').removeClass('hidden');
+          $('#trends-relative').addClass('hidden');
+
+        } else {
+          $('#trends-absolute').addClass('hidden');
+          $('#trends-relative').removeClass('hidden');
+        }
+
+        $('[data-toggle="tooltip"]').tooltip();
+      });
+
+      @if (!Model.TrendChartDataJSON.Equals("")) {
+        <text>
+          nv.addGraph(function () {
+            var lineChart = nv.models.lineChart();
+            var height = 300;
+            var chartData = @Html.Raw(Model.TrendChartDataJSON);
+          lineChart.useInteractiveGuideline(true);
+          lineChart.xAxis.tickFormat(function (d) { return d3.time.format('%H:%M')(new Date(d)); });
+          lineChart.yAxis.axisLabel('Trend %').tickFormat(d3.format(',.2f'));
+          d3.select('.trend-chart svg').attr('perserveAspectRatio', 'xMinYMid').datum(chartData).transition().duration(500).call(lineChart);
+          //nv.utils.windowResize(lineChart.update); v1.3.0 => Removed this line to prevent memory leak
+
+          return lineChart;
+        });
+        </text>
+      }
+    })
+  </script>
+}

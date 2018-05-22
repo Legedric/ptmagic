@@ -1,0 +1,49 @@
+﻿@page
+@model LoginModel
+@{
+  ViewData["Title"] = "";
+  Layout = "_LayoutPublic";
+}
+
+@section Styles {
+
+}
+
+
+<div class="card-box">
+
+  <div class="p-20">
+
+    <form method="post" role="form" class="text-center">
+      <div class="form-group">
+        <h3>PT Magic</h3>
+        <p class="text-muted">
+          Please enter your password.
+        </p>
+        <div class="input-group m-t-30 m-b-20">
+          <input name="password" type="password" class="form-control" placeholder="Password" required="">
+          <span class="input-group-btn">
+            <button type="submit" class="btn btn-ptmagic w-sm waves-effect waves-light">
+              Log In
+            </button>
+          </span>
+        </div>
+        <p><input type="checkbox" name="cbRememberMe"/> <label for="cbRememberMe">Stay logged in</label></p>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-12 text-center">
+    <p>
+      Need to set a new password?<br />Delete "<i class="text-ptmagic">settings.secure.json</i>" from your PT Magic directory!
+    </p>
+  </div>
+</div>
+
+@section Scripts {
+
+}

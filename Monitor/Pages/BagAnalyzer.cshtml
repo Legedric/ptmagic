@@ -1,0 +1,102 @@
+﻿@page
+@model BagAnalyzerModel
+@{
+  ViewData["Title"] = "";
+}
+
+@section Styles {
+  <link href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/tablesaw/css/tablesaw.css" rel="stylesheet" type="text/css" />
+}
+
+@if (Model.PTData.DCALog.Count == 0) {
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card-box">
+        <h4 class="m-t-0 header-title">No Pairs/Bags!</h4>
+
+        <p>Sorry, but your Profit Trailer did not buy anything so far that's worth analyzing.</p>
+      </div>
+    </div>
+  </div>
+} else {
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card-box">
+        <h4 class="m-t-0 header-title">DCA and Bought Pairs Analyzer <small id="baglist-refresh-icon"></small></h4>
+
+        <table class="tablesaw table m-b-0" data-tablesaw-sortable data-tablesaw-sortable-switch>
+          <thead>
+            <tr>
+              <th data-fieldid="Market" data-tablesaw-sortable-col>Market</th>
+              <th data-fieldid="BoughtTimes" data-tablesaw-sortable-col data-sortable-numeric="true" class="text-right" data-toggle="tooltip" data-placement="top" title="Current DCA level">DCA</th>
+              <th data-toggle="tooltip" data-placement="top" title="Active buy strategies">Buy Strats</th>
+              <th class="text-right" data-toggle="tooltip" data-placement="top" title="Current value relevant for buying the next DCA level">BT Value</th>
+              <th class="text-right" data-toggle="tooltip" data-placement="top" title="Next buy trigger as specified in your DCA properties">Buy Trigger</th>
+              <th data-fieldid="ProfitPercent" data-tablesaw-sortable-col data-sortable-numeric="true" data-tablesaw-sortable-default-col class="text-right tablesaw-sortable-descending" data-toggle="tooltip" data-placement="top" title="Current profit percentage">Profit</th>
+              <th data-toggle="tooltip" data-placement="top" title="Active sell strategies">Sell Strats</th>
+              <th class="text-right" data-toggle="tooltip" data-placement="top" title="Active sell trigger value">ST</th>
+              <th data-fieldid="CurrentPrice" data-tablesaw-sortable-col data-sortable-numeric="true" class="text-right" data-toggle="tooltip" data-placement="top" title="Current bid price for this market">Bid Price</th>
+              <th data-fieldid="AverageBuyPrice" data-tablesaw-sortable-col data-sortable-numeric="true" class="text-right" data-toggle="tooltip" data-placement="top" title="Average bought price for this market">Avg. Price</th>
+              <th data-fieldid="TotalCost" data-tablesaw-sortable-col data-sortable-numeric="true" class="text-right" data-toggle="tooltip" data-placement="top" title="Spent total cost in @Model.Summary.MainMarket">Cost</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="content"><tr><td colspan="10"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="dca-chart" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-full">
+      <div class="modal-content">
+        <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+}
+
+@section Scripts {
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/tablesaw/js/tablesaw.js"></script>
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/tablesaw/js/tablesaw-init.js"></script>
+
+  <script type="text/javascript">
+    var errCountBagList = [];
+    var interval;
+    var loadBagList = function () {
+      $("#baglist-refresh-icon").html('<i class="fa fa-circle-o-notch fa-spin fa-fw" data-toggle="tooltip" data-placement="top" title="Loading fresh data..."></i>');
+
+      var sortedField = $("[data-tablesaw-sortable-default-col]");
+      var sortedFieldId = sortedField.data('fieldid');
+      var sortedDir = 'ASC';
+      if (sortedField.hasClass('tablesaw-sortable-descending')) {
+        sortedDir = 'DESC';
+      }
+
+      $("#content").load('@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)_get/BagList?s=' + sortedFieldId + '&d=' + sortedDir, '', function (responseText, textStatus, XMLHttpRequest) {
+        if (textStatus == 'error') {
+          errCountBagList["BagList"]++;
+          if (errCountBagList["BagList"] > 2) {
+            $.Notification.notify('error', 'top left', 'Bag List update failed!', 'PTMagic Bag List failed to update data. If this error does not go away by itself, please check the connection to your hosting PC.')
+          }
+        } else if (responseText == 'returntologin') {
+          window.location.replace("@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)Login");
+        } else {
+          errCountBagList["BagList"] = 0;
+        }
+        $("#baglist-refresh-icon").html('');
+        $('[role="tooltip"]').remove();
+        $('[data-toggle="tooltip"]').tooltip();
+        $('.text-autocolor').autocolor(false);
+      });
+    };
+
+    $(document).ready(function () {
+      errCountBagList["BagList"] = 0;
+      loadBagList();
+      interval = setInterval(function () { loadBagList(); }, @Model.PTMagicConfiguration.GeneralSettings.Monitor.BagAnalyzerRefreshSeconds * 1000);
+    });
+  </script>
+}

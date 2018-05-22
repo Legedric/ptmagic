@@ -1,0 +1,122 @@
+﻿@page
+@model BagListModel
+@{
+  Layout = null;
+
+  System.Reflection.PropertyInfo propertyInfo = typeof(Core.Main.DataObjects.PTMagicData.DCALogData).GetProperty(Model.SortFieldId);
+  List<Core.Main.DataObjects.PTMagicData.DCALogData> dcaLogResult = Model.PTData.DCALog.OrderByDescending(d => propertyInfo.GetValue(d, null)).ToList();
+  if (Model.SortDirection.Equals("ASC")) {
+    dcaLogResult = Model.PTData.DCALog.OrderBy(d => propertyInfo.GetValue(d, null)).ToList();
+  }
+}
+
+@foreach (Core.Main.DataObjects.PTMagicData.DCALogData dcaLogEntry in dcaLogResult) {
+  Core.Main.DataObjects.PTMagicData.MarketPairSummary mps = null;
+  if (Model.Summary.MarketSummary.ContainsKey(dcaLogEntry.Market)) {
+    mps = Model.Summary.MarketSummary[dcaLogEntry.Market];
+  }
+  int nextBuyTrigger = dcaLogEntry.BoughtTimes + 1;
+
+  double nextBuyTriggerPercent = 0;
+  if (Model.Summary.DCATriggers.Count >= nextBuyTrigger) {
+    nextBuyTriggerPercent = Model.Summary.DCATriggers[nextBuyTrigger];
+  }
+
+  bool buyDisabled = false;
+  string buyTriggerText = dcaLogEntry.BuyTriggerPercent.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US")) + "%";
+
+  if (mps != null) {
+    if (!mps.IsDCAEnabled) {
+      nextBuyTriggerPercent = 0;
+      buyDisabled = true;
+      buyTriggerText = "";
+    } else {
+      if (dcaLogEntry.BuyTriggerPercent == 0) {
+        dcaLogEntry.BuyTriggerPercent = dcaLogEntry.ProfitPercent;
+      }
+    }
+  } else {
+    buyDisabled = dcaLogEntry.BuyStrategy == null;
+    if (dcaLogEntry.BuyTriggerPercent == 0) {
+      dcaLogEntry.BuyTriggerPercent = dcaLogEntry.ProfitPercent;
+    }
+  }
+
+  bool isTrailingBuyActive = dcaLogEntry.IsTrailing;
+  if (dcaLogEntry.BuyStrategies.Count > 0) {
+    isTrailingBuyActive = (dcaLogEntry.BuyStrategies.FindAll(bs => !bs.IsTrailing).Count == 0);
+  }
+
+  string buyStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, dcaLogEntry.BuyStrategies, dcaLogEntry.BuyStrategy, isTrailingBuyActive);
+  if (!Core.ProfitTrailer.StrategyHelper.IsValidStrategy(buyStrategyText, true)) {
+    buyDisabled = true;
+  }
+
+  string currentBuyValueText = Core.ProfitTrailer.StrategyHelper.GetCurrentValueText(dcaLogEntry.BuyStrategies, dcaLogEntry.BuyStrategy, dcaLogEntry.CurrentLowBBValue, dcaLogEntry.BuyTriggerPercent, true);
+  string triggerBuyValueText = Core.ProfitTrailer.StrategyHelper.GetTriggerValueText(Model.Summary, dcaLogEntry.BuyStrategies, dcaLogEntry.BuyStrategy, dcaLogEntry.BBTrigger, Core.Main.Constants.MinTrendChange, dcaLogEntry.BoughtTimes, true);
+
+  bool isTrailingSellActive = false;
+  if (dcaLogEntry.SellStrategies.Count > 0) {
+    isTrailingSellActive = (dcaLogEntry.SellStrategies.FindAll(ss => !ss.IsTrailing).Count == 0);
+  }
+
+  string sellStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, dcaLogEntry.SellStrategies, dcaLogEntry.SellStrategy, isTrailingSellActive);
+  string currentSellValueText = Core.ProfitTrailer.StrategyHelper.GetCurrentValueText(dcaLogEntry.SellStrategies, dcaLogEntry.SellStrategy, dcaLogEntry.CurrentHighBBValue, dcaLogEntry.ProfitPercent, true);
+  string triggerSellValueText = Core.ProfitTrailer.StrategyHelper.GetTriggerValueText(Model.Summary, dcaLogEntry.SellStrategies, dcaLogEntry.SellStrategy, dcaLogEntry.BBTrigger, dcaLogEntry.SellTrigger, 0, true);
+
+  <tr>
+    @if (mps != null && (mps.ActiveSingleSettings == null || mps.ActiveSingleSettings.Count == 0)) {
+      <th class="align-top"><a href="@Core.Helper.SystemHelper.GetMarketLink(Model.PTMagicConfiguration.GeneralSettings.Monitor.LinkPlatform,Model.PTMagicConfiguration.GeneralSettings.Application.Exchange, dcaLogEntry.Market, Model.Summary.MainMarket)" target="_blank">@dcaLogEntry.Market</a></th>
+    } else {
+      <th class="align-top"><a href="@Core.Helper.SystemHelper.GetMarketLink(Model.PTMagicConfiguration.GeneralSettings.Monitor.LinkPlatform,Model.PTMagicConfiguration.GeneralSettings.Application.Exchange, dcaLogEntry.Market, Model.Summary.MainMarket)" target="_blank">@dcaLogEntry.Market</a> <i class="fa fa-exclamation-triangle text-highlight" data-toggle="tooltip" data-placement="top" data-html="true" title="@await Component.InvokeAsync("PairIcon", mps)" data-template="<div class='tooltip' role='tooltip'><div class='tooltip-arrow'></div><div class='tooltip-inner pair-tooltip'></div></div>"></i></th>
+    }
+    <td class="text-right">
+      @if (dcaLogEntry.BoughtTimes > 0) {
+        @dcaLogEntry.BoughtTimes;
+      }
+    </td>
+    @if (buyDisabled) {
+      <td class="text-nowrap">@Html.Raw(buyStrategyText)</td>
+    } else {
+      <td class="text-nowrap">@Html.Raw(buyStrategyText)</td>
+    }
+    <td class="text-right text-nowrap">
+      @if (!buyDisabled) {
+        @Html.Raw(currentBuyValueText)
+      }
+    </td>
+    @if (!buyDisabled && dcaLogEntry.BoughtTimes < Model.Summary.DCALevels) {
+      <td class="text-right text-nowrap">@Html.Raw(triggerBuyValueText)</td>
+    } else {
+      if (!buyDisabled && dcaLogEntry.BoughtTimes >= Model.Summary.DCALevels) {
+        <td class="text-right text-warning">MAX</td>
+      } else {
+        <td class="text-right text-warning">Disabled!</td>
+      }
+    }
+    <td class="text-right text-autocolor">@dcaLogEntry.ProfitPercent.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"))%</td>
+    <td class="text-nowrap">@Html.Raw(sellStrategyText)</td>
+    <td class="text-right text-nowrap">
+      @Html.Raw(triggerSellValueText)
+    </td>
+    <td class="text-right">@dcaLogEntry.CurrentPrice.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+    <td class="text-right">@dcaLogEntry.AverageBuyPrice.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+    <td class="text-right">@dcaLogEntry.TotalCost.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US"))</td>
+    <td><a href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)_get/BagDetails/?m=@dcaLogEntry.Market" data-remote="false" data-toggle="modal" data-target="#dca-chart" class="btn btn-sm btn-ptmagic">Details</a></td>
+  </tr>
+}
+
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    $("#dca-chart").on("show.bs.modal", function (e) {
+      $(this).find(".modal-content").html('<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>');
+      var link = $(e.relatedTarget);
+      $(this).find(".modal-content").load(link.attr("href"), function () {
+        $('.text-autocolor').autocolor(false);
+        $('[role="tooltip"]').remove();
+        $('[data-toggle="tooltip"]').tooltip();
+      });
+    });
+  });
+</script>

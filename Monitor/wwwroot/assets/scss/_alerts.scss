@@ -1,0 +1,38 @@
+/* =============
+   Alerts
+============= */
+.alert-success {
+  background-color: lighten($success, 30%) !important;
+  border-color: lighten($success, 10%) !important;
+  color: $success;
+  .alert-link {
+    color: $success;
+  }
+}
+
+.alert-info {
+  background-color: lighten($info, 35%) !important;
+  border-color: lighten($info, 10%) !important;
+  color: $info;
+  .alert-link {
+    color: $info;
+  }
+}
+
+.alert-warning {
+  background-color: lighten($warning, 30%) !important;
+  border-color: lighten($warning, 10%) !important;
+  color: $warning;
+  .alert-link {
+    color: $warning;
+  }
+}
+
+.alert-danger {
+  background-color: lighten($danger, 35%) !important;
+  border-color: lighten($danger, 10%) !important;
+  color: $danger;
+  .alert-link {
+    color: $danger;
+  }
+}

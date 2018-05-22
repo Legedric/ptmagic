@@ -1,0 +1,109 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "VS build PTMagic",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "PTMagic"
+            ],
+            "group": {
+                "kind":"build",
+                "isDefault": true
+            }, 
+            "presentation": {
+                "reveal": "always",
+                "focus": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "VS build Monitor",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "Monitor"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "focus": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "VS run PTMagic",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "run",
+                "-p",
+                "PTMagic"
+            ],
+            "dependsOn": [
+                "VS build PTMagic"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "VS run Monitor",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "run",
+                "-p",
+                "Monitor"
+            ],
+            "dependsOn": [
+                "VS build Monitor"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "VS publish PTMagic",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "PTMagic",
+                "-c",
+                "Release",
+                "-o",
+                "${workspaceFolder}/PTMagic/bin/Release/PublishOutput"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "focus": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "VS publish Monitor",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "Monitor",
+                "-c",
+                "Release",
+                "-o",
+                "${workspaceFolder}/PTMagic/bin/Release/PublishOutput/Monitor"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "focus": true
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

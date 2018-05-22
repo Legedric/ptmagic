@@ -1,0 +1,37 @@
+﻿@model Core.Main.DataObjects.PTMagicData.MarketPairSummary
+
+@if (Model != null) {
+  if (Model.ActiveSingleSettings != null) {
+    string settingsNames = "";
+    foreach (Core.Main.DataObjects.PTMagicData.SingleMarketSetting sms in Model.ActiveSingleSettings) {
+      if (!settingsNames.Equals("")) {
+        settingsNames += "<br />";
+      }
+      settingsNames += Core.Helper.SystemHelper.SplitCamelCase(sms.SettingName);
+    }
+    <div class='card-box card-box-dark'>
+      <h4 class='m-t-0 header-title text-left'>Active Single Settings</h4>
+
+      <table class='table table-sm'>
+        <tbody>
+          <tr>
+            <td class='text-left' colspan='2'>Settings</td>
+            <td class='text-right' colspan='2'>@settingsNames</td>
+          </tr>
+          <tr>
+            <td class='text-left'>Buy Value</td>
+            <td class='text-right'>@Model.CurrentBuyValue.ToString(new System.Globalization.CultureInfo("en-US"))</td>
+            <td class='text-left'>Trailing Buy</td>
+            <td class='text-right'>@Model.CurrentTrailingBuy.ToString(new System.Globalization.CultureInfo("en-US"))</td>
+          </tr>
+          <tr>
+            <td class='text-left'>Sell Value</td>
+            <td class='text-right'>@Model.CurrentSellValue.ToString(new System.Globalization.CultureInfo("en-US"))</td>
+            <td class='text-left'>Trailing Profit</td>
+            <td class='text-right'>@Model.CurrentTrailingProfit.ToString(new System.Globalization.CultureInfo("en-US"))</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  }
+}

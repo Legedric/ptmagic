@@ -1,0 +1,286 @@
+﻿@page
+@model StatusSummaryModel
+@{
+  ViewData["Title"] = "";
+}
+
+@section Styles {
+  <link href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/nvd3/nv.d3.min.css" rel="stylesheet" type="text/css" />
+  <link href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/tablesaw/css/tablesaw.css" rel="stylesheet" type="text/css" />
+}
+
+<div class="row">
+  <div class="col-md-5">
+    <div class="card-box">
+      <h4 class="m-t-0 header-title">PTMagic Status <small id="last-refresh" class="pull-right"></small></h4>
+      @{
+        DateTime lastRuntime = Model.Summary.LastRuntime;
+        double elapsedSecondsSinceRuntime = DateTime.Now.Subtract(lastRuntime).TotalSeconds;
+        double intervalSeconds = Model.PTMagicConfiguration.AnalyzerSettings.MarketAnalyzer.IntervalMinutes * 60.0;
+
+        string ptMagicHealthIcon = "<i class=\"fa fa-heartbeat text-success\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"PT Magic is alive and healthy!\"></i>";
+        if (elapsedSecondsSinceRuntime > (intervalSeconds + intervalSeconds * 0.2)) {
+          ptMagicHealthIcon = "<i class=\"fa fa-bolt text-danger\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"PT Magic seems to have problems, check the logs!\"></i>";
+        }
+
+        string floodProtectionIcon = "";
+        if (Model.Summary.FloodProtectedSetting != null) {
+          floodProtectionIcon = "<i class=\"fa fa-info-circle text-warning\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Flood protection active! Not switching setting to " + Core.Helper.SystemHelper.SplitCamelCase(Model.Summary.FloodProtectedSetting.SettingName) + " .\"></i>";
+        }
+
+        string lastGlobalSettingSwitch = Core.Helper.SystemHelper.GetProperDurationTime((int)Math.Ceiling(DateTime.Now.Subtract(Model.Summary.LastGlobalSettingSwitch).TotalSeconds)) + " ago";
+        if (Model.Summary.LastGlobalSettingSwitch == Core.Main.Constants.confMinDate) {
+          lastGlobalSettingSwitch = "-";
+        }
+
+        int activeSingleSettings = Model.MarketsWithSingleSettings.Count;
+        string singleSettingInfoIcon = "";
+        if (activeSingleSettings > 0) {
+          singleSettingInfoIcon = "<i class=\"fa fa-info-circle text-muted\" data-toggle=\"tooltip\" data-placement=\"top\" data-html=\"true\" title=\"<b>Single Market Settings active for:</b><br />-" + Core.Helper.SystemHelper.ConvertListToTokenString(Model.MarketsWithSingleSettings, "<br />-", true) + "\" data-template=\"<div class='tooltip' role='tooltip'><div class='tooltip-arrow'></div><div class='tooltip-inner tooltip-200 text-left'></div></div>\"></i>";
+        }
+      }
+
+      <table class="table table-striped table-sm">
+        <tbody>
+          <tr>
+            <td>Active Global Setting</td>
+            <td class="text-right">@Html.Raw(floodProtectionIcon) @Core.Helper.SystemHelper.SplitCamelCase(Model.Summary.CurrentGlobalSetting.SettingName)</td>
+          </tr>
+          <tr>
+            <td>Last Runtime</td>
+            <td class="text-right"><span id="ptmagic-health">@Html.Raw(ptMagicHealthIcon)</span> @Core.Helper.SystemHelper.GetProperDurationTime((int)Math.Ceiling(elapsedSecondsSinceRuntime)) ago</td>
+          </tr>
+          <tr>
+            <td>Last Runtime Length</td>
+            <td class="text-right"> @Core.Helper.SystemHelper.GetProperDurationTime(Model.Summary.LastRuntimeSeconds)</td>
+          </tr>
+          <tr>
+            <td>Last Setting Switch</td>
+            <td class="text-right">@lastGlobalSettingSwitch</td>
+          </tr>
+          <tr>
+            <td>Active Single Settings</td>
+            <td class="text-right"><a href="ManageSMS">@Html.Raw(singleSettingInfoIcon)</a> @activeSingleSettings</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-box">
+      <h4 class="m-t-0 header-title">Active Settings</h4>
+      @{
+        string maxCostCaption = "Max";
+        if (Model.Summary.ProfitTrailerMajorVersion > 1) {
+          maxCostCaption = "Initial";
+        }
+      }
+
+      <table class="table table-striped table-sm">
+        <tbody>
+          <tr>
+            <td>Max Pairs</td>
+            <td class="text-right">@Model.Summary.MaxTradingPairs.ToString(new System.Globalization.CultureInfo("en-US"))</td>
+            @if (Model.Summary.MaxCost > 0) {
+              <td>@maxCostCaption Cost</td>
+              <td class="text-right">@Model.Summary.MaxCost.ToString(new System.Globalization.CultureInfo("en-US"))</td>
+            } else {
+              <td>@maxCostCaption Cost %</td>
+              <td class="text-right">@Model.Summary.MaxCostPercentage.ToString(new System.Globalization.CultureInfo("en-US"))</td>
+            }
+          </tr>
+          <tr>
+            <td>DCA Level</td>
+            <td class="text-right">@Model.Summary.DCALevels.ToString(new System.Globalization.CultureInfo("en-US"))</td>
+            <td>Min Vol.</td>
+            <td class="text-right">@Model.Summary.MinBuyVolume.ToString(new System.Globalization.CultureInfo("en-US"))</td>
+          </tr>
+          <tr>
+            <td>Trailing Buy</td>
+            <td class="text-right">@Model.Summary.TrailingBuy.ToString(new System.Globalization.CultureInfo("en-US"))</td>
+            <td>Trailing Profit</td>
+            <td class="text-right">@Model.Summary.TrailingProfit.ToString(new System.Globalization.CultureInfo("en-US"))</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-box">
+      <h4 class="m-t-0 header-title">Active Buy Strategies</h4>
+
+      <table class="table table-striped table-sm">
+        <tbody>
+          @if (Model.Summary.BuyStrategies.Count == 0) {
+            <tr>
+              <td>Buy Strat.</td>
+              <td class="text-right">@Model.Summary.BuyStrategy</td>
+              <td>Buy Value</td>
+              <td class="text-right">@Model.Summary.BuyValue.ToString(new System.Globalization.CultureInfo("en-US"))</td>
+            </tr>
+          } else {
+            char buyStrategyIndex = 'A';
+            foreach (Core.Main.DataObjects.PTMagicData.StrategySummary buyStrategy in Model.Summary.BuyStrategies) {
+              <tr>
+                <td>Buy Strat. @buyStrategyIndex</td>
+                <td class="text-right">@buyStrategy.Name</td>
+                <td>Buy Value @buyStrategyIndex</td>
+                <td class="text-right">@buyStrategy.Value.ToString(new System.Globalization.CultureInfo("en-US"))</td>
+              </tr>
+              buyStrategyIndex++;
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-box">
+      <h4 class="m-t-0 header-title">Active Sell Strategies</h4>
+
+      <table class="table table-striped table-sm">
+        <tbody>
+          @if (Model.Summary.SellStrategies.Count == 0) {
+            <tr>
+              <td>Sell Strat.</td>
+              <td class="text-right">@Model.Summary.SellStrategy</td>
+              <td>Sell Value</td>
+              <td class="text-right">@Model.Summary.SellValue.ToString(new System.Globalization.CultureInfo("en-US"))</td>
+            </tr>
+          } else {
+            char sellStrategyIndex = 'A';
+            foreach (Core.Main.DataObjects.PTMagicData.StrategySummary sellStrategy in Model.Summary.SellStrategies) {
+              <tr>
+                <td>Sell Strat. @sellStrategyIndex</td>
+                <td class="text-right">@sellStrategy.Name</td>
+                <td>Sell Value @sellStrategyIndex</td>
+                <td class="text-right">@sellStrategy.Value.ToString(new System.Globalization.CultureInfo("en-US"))</td>
+              </tr>
+              sellStrategyIndex++;
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="col-md-7">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card-box">
+          <h4 class="m-t-0 header-title">Settings Active Time (Last 24h)</h4>
+
+          <div id="gsChart24h">
+            <svg style="height:300px;width:100%"></svg>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card-box">
+          <h4 class="m-t-0 header-title">Settings Active Time (Last 3 days)</h4>
+
+          <div id="gsChart3d">
+            <svg style="height:300px;width:100%"></svg>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <div class="card-box">
+      <h4 class="m-t-0 header-title">Global Settings Log</h4>
+
+      <table class="table table-striped table-sm">
+        <thead>
+          <tr>
+            <th data-toggle="tooltip" data-placement="top" title="Time the setting got activated.">Activation Time</th>
+            <th data-toggle="tooltip" data-placement="top" title="Name of the global setting.">Setting</th>
+            <th data-toggle="tooltip" data-placement="top" title="Amount of time the setting is or was active">Active Time</th>
+            <th data-toggle="tooltip" data-placement="top" title="Market trends values from the time the setting got activated.">Market Trends</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (Core.Main.DataObjects.PTMagicData.GlobalSettingSummary gss in Model.Summary.GlobalSettingSummary.OrderByDescending(g => g.SwitchDateTime).Take(Model.PTMagicConfiguration.GeneralSettings.Monitor.MaxSettingsLogEntries)) {
+            TimeSpan offsetTimeSpan = TimeSpan.Parse(Model.PTMagicConfiguration.GeneralSettings.Application.TimezoneOffset.Replace("+", ""));
+            DateTimeOffset settingActivationTime = gss.SwitchDateTime;
+            settingActivationTime = settingActivationTime.ToOffset(offsetTimeSpan);
+
+            string marketTrendsSummary = "";
+            foreach (string mt in gss.MarketTrendChanges.Keys) {
+              if (!marketTrendsSummary.Equals("")) {
+                marketTrendsSummary += "<br />";
+              }
+              marketTrendsSummary += Core.Helper.SystemHelper.SplitCamelCase(mt) + ": " + gss.MarketTrendChanges[mt].TrendChange.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US")) + "%";
+            }
+            <tr>
+              <td>@settingActivationTime.DateTime.ToShortDateString() @settingActivationTime.DateTime.ToShortTimeString()</td>
+              <td>@Core.Helper.SystemHelper.SplitCamelCase(gss.SettingName)</td>
+              <td>@Core.Helper.SystemHelper.GetProperDurationTime(gss.ActiveSeconds)</td>
+              <td>@Html.Raw(marketTrendsSummary)</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+
+@section Scripts {
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/d3/d3.min.js"></script>
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/nvd3/nv.d3.min.js"></script>
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/tablesaw/js/tablesaw.js"></script>
+
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/tablesaw/js/tablesaw-init.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+      $('.text-autocolor').autocolor(false);
+
+      @if (!Model.SettingsDistribution24hChartDataJSON.Equals("")) {
+      <text>
+        nv.addGraph(function() {
+          var chart = nv.models.pieChart()
+            .x(function(d) { return d.label })
+            .y(function(d) { return d.value })
+            .showLabels(true)     //Display pie labels
+            .labelThreshold(.1)  //Configure the minimum slice size for labels to show up
+            .labelType("percent") //Configure what type of data to show in the label. Can be "key", "value" or "percent"
+            .donut(true)          //Turn on Donut mode. Makes pie chart look tasty!
+            .donutRatio(0.3)     //Configure how big you want the donut hole size to be.
+            ;
+
+        d3.select("#gsChart24h svg")
+          .datum(@Html.Raw(Model.SettingsDistribution24hChartDataJSON))
+          .transition().duration(350)
+          .call(chart);
+
+        return chart;
+      });
+      </text>
+      }
+
+      @if (!Model.SettingsDistribution3dChartDataJSON.Equals("")) {
+      <text>
+        nv.addGraph(function() {
+          var chart = nv.models.pieChart()
+            .x(function(d) { return d.label })
+            .y(function(d) { return d.value })
+            .showLabels(true)     //Display pie labels
+            .labelThreshold(.1)  //Configure the minimum slice size for labels to show up
+            .labelType("percent") //Configure what type of data to show in the label. Can be "key", "value" or "percent"
+            .donut(true)          //Turn on Donut mode. Makes pie chart look tasty!
+            .donutRatio(0.3)     //Configure how big you want the donut hole size to be.
+            ;
+
+        d3.select("#gsChart3d svg")
+          .datum(@Html.Raw(Model.SettingsDistribution3dChartDataJSON))
+          .transition().duration(350)
+          .call(chart);
+
+        return chart;
+      });
+      </text>
+      }
+    });
+  </script>
+}

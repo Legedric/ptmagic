@@ -1,0 +1,239 @@
+﻿@page
+@model ManageSMSModel
+@{
+  ViewData["Title"] = "";
+}
+
+@section Styles {
+}
+
+<form class="form-horizontal" method="post">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card-box">
+
+        <h4 class="m-t-0 header-title"><b>Applied Single Market Setting Details</b></h4>
+
+        <table class="table table-striped table-sm m-b-0" h>
+          <thead>
+            <tr>
+              <th>Market Name</th>
+              <th class="text-right">Last Price</th>
+              <th class="text-right">Volume</th>
+              <th>Active Setting</th>
+              <th>Triggered time</th>
+              <th>Off Triggers</th>
+              <th class="text-right">Current Values</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @{
+              string lastMarket = "";
+            }
+            @foreach (Core.Main.DataObjects.PTMagicData.SingleMarketSettingSummary smsSummary in Model.SingleMarketSettingSummaries.OrderBy(s => s.Market)) {
+              Core.Main.DataObjects.PTMagicData.MarketPairSummary mps = null;
+              if (Model.Summary.MarketSummary.ContainsKey(smsSummary.Market)) {
+                mps = Model.Summary.MarketSummary[smsSummary.Market];
+              } else {
+                mps = new Core.Main.DataObjects.PTMagicData.MarketPairSummary();
+              }
+
+              bool settingHasOffTriggers = false;
+              if (smsSummary.SingleMarketSetting.OffTriggers.Count > 0) {
+                settingHasOffTriggers = true;
+              }
+
+              int activeSeconds = (int)Math.Floor(DateTime.UtcNow.Subtract(smsSummary.ActivationDateTimeUTC).TotalSeconds);
+              int activeHours = (int)Math.Floor(DateTime.UtcNow.Subtract(smsSummary.ActivationDateTimeUTC).TotalHours);
+              <tr>
+                <th>
+                  @if (!lastMarket.Equals(smsSummary.Market)) {
+                    <a href="@Core.Helper.SystemHelper.GetMarketLink(Model.PTMagicConfiguration.GeneralSettings.Monitor.LinkPlatform, Model.PTMagicConfiguration.GeneralSettings.Application.Exchange, smsSummary.Market, Model.Summary.MainMarket)" target="_blank">@smsSummary.Market</a>
+                  }
+                </th>
+                <td class="text-right">
+                  @if (!lastMarket.Equals(smsSummary.Market)) {
+                    <span>@mps.LatestPrice.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US")) @Model.Summary.MainMarket</span>
+                  }
+                </td>
+                <td class="text-right">
+                  @if (!lastMarket.Equals(smsSummary.Market)) {
+                    <span>@Math.Round(mps.Latest24hVolume, 0).ToString("#,#0", new System.Globalization.CultureInfo("en-US")) @Model.Summary.MainMarket</span>
+                  }
+                </td>
+                <td>
+                  @Core.Helper.SystemHelper.SplitCamelCase(smsSummary.SingleMarketSetting.SettingName)
+                </td>
+                <td>
+                  @Core.Helper.SystemHelper.GetProperDurationTime(activeSeconds)
+                </td>
+                <td>
+                  @if (settingHasOffTriggers) {
+                    foreach (Core.Main.DataObjects.PTMagicData.OffTrigger ot in smsSummary.SingleMarketSetting.OffTriggers) {
+                      string triggerTextClass = "text-danger";
+                      if (ot.HoursSinceTriggered > 0) {
+                        triggerTextClass = (activeHours >= ot.HoursSinceTriggered) ? "text-success" : "text-danger";
+                        <p class="@triggerTextClass"><span>Hours Since Triggered</span><span class="pull-right">@ot.HoursSinceTriggered</span></p>
+                      }
+                      if (ot.Min24hVolume > 0 || ot.Max24hVolume < Core.Main.Constants.Max24hVolume) {
+                        triggerTextClass = (mps.Latest24hVolume >= ot.Min24hVolume && mps.Latest24hVolume <= ot.Max24hVolume) ? "text-success" : "text-danger";
+                        <p class="@triggerTextClass">
+                          <span>Volume</span>
+                          <span class="pull-right">
+                            @if (ot.Min24hVolume > 0) {
+                              @("min: " + ot.Min24hVolume.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US")) + " " + Model.Summary.MainMarket)
+                            }
+                            @if (ot.Min24hVolume > 0 && ot.Max24hVolume < Core.Main.Constants.Max24hVolume) {
+                              @(", ")
+                            }
+                            @if (ot.Max24hVolume < Core.Main.Constants.Max24hVolume) {
+                              @("max: " + ot.Max24hVolume.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US")) + " " + Model.Summary.MainMarket)
+                            }
+                          </span>
+                        </p>
+                      }
+                      if (ot.Max24hVolume < Core.Main.Constants.Max24hVolume) {
+                        triggerTextClass = (mps.Latest24hVolume <= ot.Max24hVolume) ? "text-success" : "text-danger";
+                        <p class="@triggerTextClass"><span>Max 24h Volume</span><span class="pull-right">@ot.Max24hVolume.ToString("#,#0.00000000", new System.Globalization.CultureInfo("en-US")) @Model.Summary.MainMarket</span></p>
+                      }
+                      if (!ot.MarketTrendName.Equals("")) {
+                        double trendChange = Model.GetTrendChange(ot.MarketTrendName, mps, smsSummary.TriggerSnapshot, ot.MarketTrendRelation);
+                        triggerTextClass = (trendChange >= ot.MinChange && trendChange <= ot.MaxChange) ? "text-success" : "text-danger";
+                        <p class="@triggerTextClass">
+                          <span>@Core.Helper.SystemHelper.SplitCamelCase(ot.MarketTrendName) (@Core.Helper.SystemHelper.SplitCamelCase(ot.MarketTrendRelation))</span>
+                          <span class="pull-right">
+                            @if (ot.MinChange > Core.Main.Constants.MinTrendChange) {
+                              @("min: " + ot.MinChange.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US")) + "%")
+                            }
+                            @if (ot.MinChange > Core.Main.Constants.MinTrendChange && ot.MaxChange < Core.Main.Constants.MaxTrendChange) {
+                              @(", ")
+                            }
+                            @if (ot.MaxChange < Core.Main.Constants.MaxTrendChange) {
+                              @("max: " + ot.MaxChange.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US")) + "%")
+                            }
+                          </span>
+                        </p>
+                      }
+                    }
+                  } else {
+                    <i class="text-warning">Not specified</i> <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="This setting has no Off Triggers so it will stay active until its triggers are no longer matched."></i>
+                  }
+                </td>
+                <td class="text-right">
+                  @if (settingHasOffTriggers) {
+                    foreach (Core.Main.DataObjects.PTMagicData.OffTrigger ot in smsSummary.SingleMarketSetting.OffTriggers) {
+                      string triggerTextClass = "text-danger";
+                      if (ot.HoursSinceTriggered > 0) {
+                        triggerTextClass = (activeHours >= ot.HoursSinceTriggered) ? "text-success" : "text-danger";
+                        <p class="@triggerTextClass">@activeHours.ToString(new System.Globalization.CultureInfo("en-US"))</p>
+                      }
+                      if (ot.Min24hVolume > 0) {
+                        triggerTextClass = (mps.Latest24hVolume >= ot.Min24hVolume) ? "text-success" : "text-danger";
+                        <p class="@triggerTextClass">@Math.Round(mps.Latest24hVolume, 0).ToString("#,#0", new System.Globalization.CultureInfo("en-US")) @Model.Summary.MainMarket</p>
+                      }
+                      if (ot.Max24hVolume < Core.Main.Constants.Max24hVolume) {
+                        triggerTextClass = (mps.Latest24hVolume <= ot.Max24hVolume) ? "text-success" : "text-danger";
+                        <p class="@triggerTextClass">@Math.Round(mps.Latest24hVolume, 0).ToString("#,#0", new System.Globalization.CultureInfo("en-US")) @Model.Summary.MainMarket</p>
+                      }
+                      if (!ot.MarketTrendName.Equals("")) {
+                        if (mps.MarketTrendChanges.ContainsKey(ot.MarketTrendName)) {
+                          double trendChange = Model.GetTrendChange(ot.MarketTrendName, mps, smsSummary.TriggerSnapshot, ot.MarketTrendRelation);
+                          triggerTextClass = (trendChange >= ot.MinChange && trendChange <= ot.MaxChange) ? "text-success" : "text-danger";
+                          string trendChangeOutput = trendChange.ToString("#,#0.00", new System.Globalization.CultureInfo("en-US"));
+                          <p class="@triggerTextClass">@trendChangeOutput%</p>
+                        }
+                      }
+                    }
+                  }
+                </td>
+                <td>
+                  @if (settingHasOffTriggers) {
+                    @if (Model.PTMagicConfiguration.GeneralSettings.Monitor.IsPasswordProtected) {
+                      <a class="btn btn-danger btn-sm btn-custom btn-block text-uppercase btn-resetsettingsecure" data-datatarget="@Html.Raw(smsSummary.Market)" data-setting="@Html.Raw(smsSummary.SingleMarketSetting.SettingName)" href="#">Reset</a>
+                    } else {
+                      <a class="btn btn-danger btn-custom btn-block text-uppercase" data-toggle="tooltip" data-placement="top" title="This is only accessible when you protect your monitor with a password!"><i class="fa fa-lock text-danger"></i> Reset</a>
+                    }
+                  }
+                </td>
+              </tr>
+              lastMarket = smsSummary.Market;
+            }
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </div>
+</form>
+
+<!-- Modal -->
+<div class="modal fade" id="modalResetSetting" tabindex="-1" role="dialog" aria-labelledby="modalResetSettingTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalResetSettingTitle">Are you sure?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Do you really want to reset this Single Market Setting during the next run of PT Magic?
+        <p class="m-t-10"><span class="text-warning">Please note:</span> Even if you reset a setting, it may get triggered again on the next run depending on current market conditions.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ptmagic text-uppercase waves-effect waves-light btn-resetsetting" data-datatarget="" data-setting="">Yes, do it!</button>
+        <button type="button" class="btn btn-secondary text-uppercase" data-dismiss="modal">No...</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+
+  <script type="text/javascript">
+    $(function () {
+      $('.btn-resetsettingsecure').click(function () {
+        var dataTarget = $(this).data('datatarget');
+        var dataSetting = $(this).data('setting');
+
+        $('.btn-resetsetting').data('datatarget', dataTarget);
+        $('.btn-resetsetting').data('setting', dataSetting);
+        $('#modalResetSetting').modal('show');
+      });
+
+      $('.btn-resetsetting').click(function () {
+        var dataTarget = $(this).data('datatarget');
+        var dataSetting = $(this).data('setting');
+
+        var postValues = { Market: dataTarget, Setting: dataSetting };
+        $.ajax({
+          type: 'POST',
+          url: "@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)_post/ResetSingleMarketSetting",
+          contentType: "application/json; charset=utf-8",
+          dataType: "json",
+          data: JSON.stringify(postValues),
+          beforeSend: function (xhr) {
+            xhr.setRequestHeader("XSRF-TOKEN",
+              $('input:hidden[name="__RequestVerificationToken"]').val());
+          },
+          success: function (data) {
+            window.location.replace("@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)ManageSMS?n=SettingReset");
+          },
+          error: function (jqxhr, errorText, thrownError) {
+            $.Notification.notify('error', 'top left', 'Error resetting setting!', 'Error message: ' + errorText);
+          }
+        });
+
+        return false;
+      });
+
+      @if (!Model.NotifyType.Equals("") && !Model.NotifyHeadline.Equals("") && !Model.NotifyMessage.Equals("")) {
+        <text>
+      $.Notification.notify('@Model.NotifyType', 'top left', '@Model.NotifyHeadline', '@Model.NotifyMessage');
+      window.history.pushState('@Model.PTMagicConfiguration.GeneralSettings.Application.InstanceName Monitor', '@Model.PTMagicConfiguration.GeneralSettings.Application.InstanceName Monitor', '@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)ManageSMS');
+        </text>
+      }
+    })
+  </script>
+}

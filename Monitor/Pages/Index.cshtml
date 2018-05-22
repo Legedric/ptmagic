@@ -1,0 +1,89 @@
+﻿@page
+@model IndexModel
+@{
+  ViewData["Title"] = "";
+}
+
+@section Styles {
+  <link href="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/nvd3/nv.d3.min.css" rel="stylesheet" type="text/css" />
+}
+
+<div id="dashboardTop"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>
+<div id="dashboardBottom"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>
+
+<div id="dca-chart" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+  <div class="modal-dialog modal-full">
+    <div class="modal-content">
+      <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+@section Scripts {
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/d3/d3.min.js"></script>
+  <script src="@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)assets/plugins/nvd3/nv.d3.min.js"></script>
+
+  <script type="text/javascript">
+    var errCountIndex = [];
+    var intervalDashboardTop;
+    var intervalDashboardBottom;
+    var loadDashboardTop = function () {
+      $("#baglist-refresh-icon").html('<i class="fa fa-circle-o-notch fa-spin fa-fw" data-toggle="tooltip" data-placement="top" title="Loading fresh data..."></i>');
+      $("#buylist-refresh-icon").html('<i class="fa fa-circle-o-notch fa-spin fa-fw" data-toggle="tooltip" data-placement="top" title="Loading fresh data..."></i>');
+
+      $("#dashboardTop").load('@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)_get/DashboardTop', '', function (responseText, textStatus, XMLHttpRequest) {
+        $("#baglist-refresh-icon").html('');
+        $("#buylist-refresh-icon").html('');
+        $('[role="tooltip"]').remove();
+        $('[data-toggle="tooltip"]').tooltip();
+        $('.text-autocolor').autocolor(false);
+
+        if (textStatus == 'error') {
+          errCountIndex["DashboardTop"]++;
+          if (errCountIndex["DashboardTop"] > 2) {
+            $.Notification.notify('error', 'top left', 'Dashboard (Top) update failed!', 'PTMagic Monitor failed to update data. If this error does not go away by itself, please check the connection to your hosting PC.')
+          }
+        } else if (responseText == 'returntologin') {
+          window.location.replace("@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)Login");
+        } else {
+          errCountIndex["DashboardTop"] = 0;
+        }
+      });
+    };
+
+    var loadDashboardBottom = function () {
+      //destroy all d3 svg graph to avoid memory leak
+      $(".nvtooltip").remove();
+      $("svg > *").remove();
+      $("svg").remove();
+      nv.charts = {};
+      nv.graphs = [];
+      nv.logs = {};
+      nv.tooltip = {};
+
+      $("#dashboardBottom").load('@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)_get/DashboardBottom', '', function (responseText, textStatus, XMLHttpRequest) {
+        if (textStatus == 'error') {
+          errCountIndex["DashboardBottom"]++;
+          if (errCountIndex["DashboardBottom"] > 2) {
+            $.Notification.notify('error', 'top left', 'Dashboard (Bottom) update failed!', 'PTMagic Monitor failed to update data. If this error does not go away by itself, please check the connection to your hosting PC.')
+          }
+        } else if (responseText == 'returntologin') {
+          window.location.replace("@Html.Raw(Model.PTMagicConfiguration.GeneralSettings.Monitor.RootUrl)Login");
+        } else {
+          errCountIndex["DashboardBottom"] = 0;
+        }
+      });
+    };
+
+    $(document).ready(function () {
+      errCountIndex["DashboardTop"] = 0;
+      loadDashboardTop();
+      intervalDashboardTop = setInterval(function () { loadDashboardTop(); }, 5 * 1000);
+
+      errCountIndex["DashboardBottom"] = 0;
+      loadDashboardBottom();
+      intervalDashboardBottom = setInterval(function () { loadDashboardBottom(); }, @Model.PTMagicConfiguration.GeneralSettings.Monitor.RefreshSeconds * 1000);
+    });
+  </script>
+}

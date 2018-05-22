@@ -1,0 +1,136 @@
+﻿@page
+@model SettingsMarketTrendsModel
+@{
+  Layout = null;
+}
+<div id="MarketTrend_@Model.MarketTrendName">
+  <a name="MarketTrend_@Model.MarketTrendName"></a>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card-box">
+        @if (!Model.MarketTrend.Name.Equals("")) {
+          <h4 class="m-t-0 m-b-20 header-title">
+            Market Trend "<span class="text-ptmagic">@Model.MarketTrend.Name</span>"
+            <button class="btn btn-ptmagic text-uppercase waves-effect waves-light btn-sort btn-xs pull-right btn-move-MT btn-move-MT@(Model.MarketTrendName)" data-datadirection="down" data-datatarget="MarketTrend_@Model.MarketTrendName" data-toggle="tooltip" data-placement="top" title="Move down"><i class="fa fa-chevron-down"></i></button>
+            <button class="btn btn-ptmagic text-uppercase waves-effect waves-light btn-sort btn-xs pull-right btn-move-MT btn-move-MT@(Model.MarketTrendName) m-r-5" data-datadirection="up" data-datatarget="MarketTrend_@Model.MarketTrendName" data-toggle="tooltip" data-placement="top" title="Move up"><i class="fa fa-chevron-up"></i></button>
+          </h4>
+        } else {
+          <h4 class="m-t-0 m-b-20 header-title">New Market Trend</h4>
+        }
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Name (Unique) <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="UNIQUE market trend name (to be referenced by your triggers below)"></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="MarketAnalyzer_MarketTrend_@(Model.MarketTrendName)|Name" value="@Core.Helper.SystemHelper.StripBadCode(Model.MarketTrend.Name, Core.Main.Constants.WhiteListNames)">
+            <span class="help-block"><small>Allowed characters: Letters, Numbers and '_'</small></span>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Platform <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Platform to grab prices from"></i></label>
+          <div class="col-md-8">
+            <select name="MarketAnalyzer_MarketTrend_@(Model.MarketTrendName)|Platform" class="form-control">
+              <option selected="@(Model.MarketTrend.Platform.Equals("CoinMarketCap", StringComparison.InvariantCultureIgnoreCase))">CoinMarketCap</option>
+              <option selected="@(Model.MarketTrend.Platform.Equals("Exchange", StringComparison.InvariantCultureIgnoreCase))">Exchange</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Max Markets <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Number of markets/pairs to analyze sorted by 24h volume."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="MarketAnalyzer_MarketTrend_@(Model.MarketTrendName)|MaxMarkets" value="@Model.MarketTrend.MaxMarkets.ToString()">
+            <span class="help-block"><small>0 = All available markets</small></span>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Trend Minutes <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Number of minutes to build a trend (1440 = 24h, 720 = 12h, 60 = 1h)."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="MarketAnalyzer_MarketTrend_@(Model.MarketTrendName)|TrendMinutes" value="@Model.MarketTrend.TrendMinutes.ToString()">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Trend Currency <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Trend Currency to build the trend against. If set to 'Fiat', the trend will take the USD value of your main currency into account to build the trend."></i></label>
+          <div class="col-md-8">
+            <select name="MarketAnalyzer_MarketTrend_@(Model.MarketTrendName)|TrendCurrency" class="form-control">
+              <option selected="@(Model.MarketTrend.TrendCurrency.Equals("Market", StringComparison.InvariantCultureIgnoreCase))">Market</option>
+              <option selected="@(Model.MarketTrend.TrendCurrency.Equals("Fiat", StringComparison.InvariantCultureIgnoreCase))">Fiat</option>
+            </select>
+            <span class="help-block"><small>Market = Trend of each coin against your main market (BTC, ETH) / Fiat = Trend of each coin against USD</small></span>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Ignored Markets <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Comma separated list of markets you want to be ignored in this market trend."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="MarketAnalyzer_MarketTrend_@(Model.MarketTrendName)|IgnoredMarkets" value="@Model.MarketTrend.IgnoredMarkets">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Allowed Markets <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Comma separated list of markets you want to be allowed in this market trend."></i></label>
+          <div class="col-md-8">
+            <input type="text" class="form-control" name="MarketAnalyzer_MarketTrend_@(Model.MarketTrendName)|AllowedMarkets" value="@Model.MarketTrend.AllowedMarkets">
+            <span class="help-block"><small>Leave empty to allow all</small></span>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Display Graph <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Displays or hides the graph for this trend on the dashboard of your PT Magic monitor."></i></label>
+          <div class="col-md-8">
+            <input type="checkbox" name="MarketAnalyzer_MarketTrend_@(Model.MarketTrendName)|DisplayGraph" checked="@(Model.MarketTrend.DisplayGraph)" data-plugin="switchery" data-switchery="false" data-color="#81c868" data-size="small" />
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-4 col-form-label">Exclude Main Currency <i class="fa fa-info-circle text-muted" data-toggle="tooltip" data-placement="top" title="Excludes the main currency (for example BTC) from market trend analysis."></i></label>
+          <div class="col-md-8">
+            <input type="checkbox" name="MarketAnalyzer_MarketTrend_@(Model.MarketTrendName)|ExcludeMainCurrency" checked="@(Model.MarketTrend.ExcludeMainCurrency)" data-plugin="switchery" data-switchery="false" data-color="#81c868" data-size="small" />
+          </div>
+        </div>
+
+        <button class="btn btn-danger btn-block text-uppercase waves-effect waves-light btn-remove-MT@(Model.MarketTrendName)" data-datatarget="MarketTrend_@Model.MarketTrendName">
+          Remove Market Trend "@Model.MarketTrend.Name"
+        </button>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript">
+    $(document).ready(function () {
+
+    $('.btn-remove-MT@(Model.MarketTrendName)').click(function () {
+      var dataTarget = $(this).data('datatarget');
+
+      $('#' + dataTarget).animate({ height: 0 }, 300, function () {
+        $(this).remove();
+      });
+
+      return false;
+    });
+
+    $('.btn-move-MT@(Model.MarketTrendName)').click(function () {
+      checkedMTButtons = false;
+      var dataTarget = $(this).data('datatarget');
+      var dataDirection = $(this).data('datadirection');
+
+      var currentElement = $('#' + dataTarget).closest('.settings-markettrend');
+
+      var prevElement = $(currentElement).prev('.settings-markettrend');
+      var nextElement = $(currentElement).next('.settings-markettrend');
+
+      if (dataDirection === 'down') {
+        $(currentElement).insertAfter($(nextElement));
+        $('html, body').scrollTop($(currentElement).offset().top - 100);
+      } else if (dataDirection === 'up') {
+        $(currentElement).insertBefore($(prevElement));
+        $('html, body').scrollTop($(currentElement).offset().top - 100);
+      }
+      checkMTMoveButtons();
+
+      return false;
+    });
+  });
+  </script>
+</div>
