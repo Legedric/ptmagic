@@ -1568,7 +1568,7 @@ namespace Core.Main {
           // Write single market settings
           this.Log.DoLogInfo("Building single market settings for '" + this.TriggeredSingleMarketSettings.Count.ToString() + "' markets...");
 
-          SettingsHandler.CompileSingleMarketProperties(this.ProfitTrailerMajorVersion, this.LastRuntimeSummary.MainMarket, this.TriggeredSingleMarketSettings, matchedMarketTriggers, this.PTMagicConfiguration, this.PairsLines, this.DCALines, this.IndicatorsLines, this.Log);
+          SettingsHandler.CompileSingleMarketProperties(this, matchedMarketTriggers);
           this.SingleMarketSettingWritten = true;
 
           this.Log.DoLogInfo("Building single market settings completed.");
@@ -1576,7 +1576,7 @@ namespace Core.Main {
           this.Log.DoLogInfo("No settings triggered for single markets.");
 
           // Remove single market settings if no triggers are met - if necessary
-          this.SingleMarketSettingWritten = SettingsHandler.RemoveSingleMarketSettings(this.PTMagicConfiguration, this.PairsLines, this.DCALines, this.IndicatorsLines, this.Log);
+          this.SingleMarketSettingWritten = SettingsHandler.RemoveSingleMarketSettings(this);
         }
 
       } else {

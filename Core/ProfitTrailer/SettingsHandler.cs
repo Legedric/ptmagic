@@ -247,7 +247,7 @@ namespace Core.ProfitTrailer {
       return result;
     }
 
-    public static void CompileSingleMarketProperties(int ptMajorVersion, string mainMarket, Dictionary<string, List<SingleMarketSetting>> singleMarketSettings, Dictionary<string, List<string>> matchedTriggers, PTMagicConfiguration systemConfiguration, List<string> pairsLines, List<string> dcaLines, List<string> indicatorsLines, LogHelper log) {
+    public static void CompileSingleMarketProperties(PTMagic ptmagicInstance, Dictionary<string, List<string>> matchedTriggers) {
       try {
         List<string> globalPairsLines = new List<string>();
         List<string> globalDCALines = new List<string>();
@@ -257,7 +257,7 @@ namespace Core.ProfitTrailer {
         List<string> newDCALines = new List<string>();
         List<string> newIndicatorsLines = new List<string>();
 
-        foreach (string pairsLine in pairsLines) {
+        foreach (string pairsLine in ptmagicInstance.PairsLines) {
           if (pairsLine.IndexOf("PTMagic_SingleMarketSettings", StringComparison.InvariantCultureIgnoreCase) > -1) {
 
             // Single Market Settings will get overwritten every single run => crop the lines
@@ -273,7 +273,7 @@ namespace Core.ProfitTrailer {
         newPairsLines.Add("# ########################################################################");
         newPairsLines.Add("");
 
-        foreach (string dcaLine in dcaLines) {
+        foreach (string dcaLine in ptmagicInstance.DCALines) {
           if (dcaLine.IndexOf("PTMagic_SingleMarketSettings", StringComparison.InvariantCultureIgnoreCase) > -1) {
 
             // Single Market Settings will get overwritten every single run => crop the lines
@@ -289,7 +289,7 @@ namespace Core.ProfitTrailer {
         newDCALines.Add("# ########################################################################");
         newDCALines.Add("");
 
-        foreach (string indicatorsLine in indicatorsLines) {
+        foreach (string indicatorsLine in ptmagicInstance.IndicatorsLines) {
           if (indicatorsLine.IndexOf("PTMagic_SingleMarketSettings", StringComparison.InvariantCultureIgnoreCase) > -1) {
 
             // Single Market Settings will get overwritten every single run => crop the lines
@@ -309,14 +309,14 @@ namespace Core.ProfitTrailer {
         newIndicatorsLines.Add("# ########################################################################");
         newIndicatorsLines.Add("");
 
-        foreach (string marketPair in singleMarketSettings.Keys.OrderBy(k => k)) {
+        foreach (string marketPair in ptmagicInstance.TriggeredSingleMarketSettings.Keys.OrderBy(k => k)) {
           Dictionary<string, object> pairsPropertiesToApply = new Dictionary<string, object>();
           Dictionary<string, object> dcaPropertiesToApply = new Dictionary<string, object>();
           Dictionary<string, object> indicatorsPropertiesToApply = new Dictionary<string, object>();
 
           // Build Properties as a whole list so that a single coin also has only one block with single market settings applied to it
-          foreach (SingleMarketSetting setting in singleMarketSettings[marketPair]) {
-            log.DoLogInfo("Building single market settings '" + setting.SettingName + "' for '" + marketPair + "'...");
+          foreach (SingleMarketSetting setting in ptmagicInstance.TriggeredSingleMarketSettings[marketPair]) {
+            ptmagicInstance.Log.DoLogInfo("Building single market settings '" + setting.SettingName + "' for '" + marketPair + "'...");
 
             foreach (string settingPairsProperty in setting.PairsProperties.Keys) {
               if (!pairsPropertiesToApply.ContainsKey(settingPairsProperty)) {
@@ -342,12 +342,12 @@ namespace Core.ProfitTrailer {
               }
             }
 
-            log.DoLogInfo("Built single market settings '" + setting.SettingName + "' for '" + marketPair + "'.");
+            ptmagicInstance.Log.DoLogInfo("Built single market settings '" + setting.SettingName + "' for '" + marketPair + "'.");
           }
 
-          newPairsLines = SettingsHandler.BuildPropertyLinesForSingleMarketSetting(ptMajorVersion, mainMarket, marketPair, singleMarketSettings[marketPair], pairsPropertiesToApply, matchedTriggers, globalPairsProperties, newPairsLines, systemConfiguration, log);
-          newDCALines = SettingsHandler.BuildPropertyLinesForSingleMarketSetting(ptMajorVersion, mainMarket, marketPair, singleMarketSettings[marketPair], dcaPropertiesToApply, matchedTriggers, globalDCAProperties, newDCALines, systemConfiguration, log);
-          newIndicatorsLines = SettingsHandler.BuildPropertyLinesForSingleMarketSetting(ptMajorVersion, mainMarket, marketPair, singleMarketSettings[marketPair], indicatorsPropertiesToApply, matchedTriggers, globalIndicatorsProperties, newIndicatorsLines, systemConfiguration, log);
+          newPairsLines = SettingsHandler.BuildPropertyLinesForSingleMarketSetting(ptmagicInstance.ProfitTrailerMajorVersion, ptmagicInstance.LastRuntimeSummary.MainMarket, marketPair, ptmagicInstance.TriggeredSingleMarketSettings[marketPair], pairsPropertiesToApply, matchedTriggers, globalPairsProperties, newPairsLines, ptmagicInstance.PTMagicConfiguration, ptmagicInstance.Log);
+          newDCALines = SettingsHandler.BuildPropertyLinesForSingleMarketSetting(ptmagicInstance.ProfitTrailerMajorVersion, ptmagicInstance.LastRuntimeSummary.MainMarket, marketPair, ptmagicInstance.TriggeredSingleMarketSettings[marketPair], dcaPropertiesToApply, matchedTriggers, globalDCAProperties, newDCALines, ptmagicInstance.PTMagicConfiguration, ptmagicInstance.Log);
+          newIndicatorsLines = SettingsHandler.BuildPropertyLinesForSingleMarketSetting(ptmagicInstance.ProfitTrailerMajorVersion, ptmagicInstance.LastRuntimeSummary.MainMarket, marketPair, ptmagicInstance.TriggeredSingleMarketSettings[marketPair], indicatorsPropertiesToApply, matchedTriggers, globalIndicatorsProperties, newIndicatorsLines, ptmagicInstance.PTMagicConfiguration, ptmagicInstance.Log);
         }
 
         // Combine global settings lines with single market settings lines
@@ -355,11 +355,11 @@ namespace Core.ProfitTrailer {
         globalDCALines.AddRange(newDCALines);
         globalIndicatorsLines.AddRange(newIndicatorsLines);
 
-        pairsLines = globalPairsLines;
-        dcaLines = globalDCALines;
-        indicatorsLines = globalIndicatorsLines;
+        ptmagicInstance.PairsLines = globalPairsLines;
+        ptmagicInstance.DCALines = globalDCALines;
+        ptmagicInstance.IndicatorsLines = globalIndicatorsLines;
       } catch (Exception ex) {
-        log.DoLogCritical("Critical error while writing settings!", ex);
+        ptmagicInstance.Log.DoLogCritical("Critical error while writing settings!", ex);
         throw (ex);
       }
     }
@@ -446,7 +446,7 @@ namespace Core.ProfitTrailer {
       return newPropertyLines;
     }
 
-    public static bool RemoveSingleMarketSettings(PTMagicConfiguration systemConfiguration, List<string> pairsLines, List<string> dcaLines, List<string> indicatorsLines, LogHelper log) {
+    public static bool RemoveSingleMarketSettings(PTMagic ptmagicInstance) {
       bool result = false;
       try {
         List<string> cleanedUpPairsLines = new List<string>();
@@ -454,7 +454,7 @@ namespace Core.ProfitTrailer {
         List<string> cleanedUpIndicatorsLines = new List<string>();
 
         bool removedPairsSingleMarketSettings = false;
-        foreach (string pairsLine in pairsLines) {
+        foreach (string pairsLine in ptmagicInstance.PairsLines) {
           if (pairsLine.IndexOf("PTMagic_SingleMarketSettings", StringComparison.InvariantCultureIgnoreCase) > -1) {
 
             // Single Market Settings will get overwritten every single run => crop the lines
@@ -468,7 +468,7 @@ namespace Core.ProfitTrailer {
         }
 
         bool removedDCASingleMarketSettings = false;
-        foreach (string dcaLine in dcaLines) {
+        foreach (string dcaLine in ptmagicInstance.DCALines) {
           if (dcaLine.IndexOf("PTMagic_SingleMarketSettings", StringComparison.InvariantCultureIgnoreCase) > -1) {
 
             // Single Market Settings will get overwritten every single run => crop the lines
@@ -482,7 +482,7 @@ namespace Core.ProfitTrailer {
         }
 
         bool removedIndicatorsSingleMarketSettings = false;
-        foreach (string indicatorsLine in indicatorsLines) {
+        foreach (string indicatorsLine in ptmagicInstance.IndicatorsLines) {
           if (indicatorsLine.IndexOf("PTMagic_SingleMarketSettings", StringComparison.InvariantCultureIgnoreCase) > -1) {
 
             // Single Market Settings will get overwritten every single run => crop the lines
@@ -495,13 +495,13 @@ namespace Core.ProfitTrailer {
           }
         }
 
-        pairsLines = cleanedUpPairsLines;
-        dcaLines = cleanedUpDCALines;
-        indicatorsLines = cleanedUpIndicatorsLines;
+        ptmagicInstance.PairsLines = cleanedUpPairsLines;
+        ptmagicInstance.DCALines = cleanedUpDCALines;
+        ptmagicInstance.IndicatorsLines = cleanedUpIndicatorsLines;
 
         result = removedPairsSingleMarketSettings && removedDCASingleMarketSettings && removedIndicatorsSingleMarketSettings;
       } catch (Exception ex) {
-        log.DoLogCritical("Critical error while writing settings!", ex);
+        ptmagicInstance.Log.DoLogCritical("Critical error while writing settings!", ex);
       }
 
       return result;
