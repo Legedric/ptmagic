@@ -38,7 +38,7 @@ namespace Core.MarketAnalyzer {
       return jsonObject;
     }
 
-    public static Newtonsoft.Json.Linq.JObject GetSimpleJsonObjectFromURL(string url, LogHelper log, bool onlyLogDebug) {
+    public static Newtonsoft.Json.Linq.JObject GetSimpleJsonObjectFromURL(string url, LogHelper log, bool swallowException) {
       Newtonsoft.Json.Linq.JObject jsonObject = null;
 
       HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
@@ -59,10 +59,11 @@ namespace Core.MarketAnalyzer {
         log.DoLogCritical(ex.Message, ex);
         throw ex;
       } catch (Exception ex) {
-        if (onlyLogDebug) {
-          log.DoLogDebug("Url: " + url + " Message: " + ex.Message);
+        if (swallowException) {
+          // Do nothing, as we do not want to get this logged. Only uncritical functions uses this
         } else {
-          log.DoLogCritical(ex.Message, ex);
+          log.DoLogCritical("Url: " + url + " Message: " + ex.Message, ex);
+          throw ex;
         }
       }
 
@@ -152,7 +153,7 @@ namespace Core.MarketAnalyzer {
       string baseUrl = "http://free.currencyconverterapi.com/api/v5/convert?q=USD_" + currency + "&compact=y";
 
       log.DoLogDebug("http://free.currencyconverterapi.com - Getting latest exchange rates...");
-      Newtonsoft.Json.Linq.JObject jsonObject = GetSimpleJsonObjectFromURL(baseUrl, log, true);
+      Newtonsoft.Json.Linq.JObject jsonObject = GetSimpleJsonObjectFromURL(baseUrl, log, false);
       if (jsonObject != null) {
         log.DoLogDebug("http://free.currencyconverterapi.com - Received latest exchange rates.");
 
