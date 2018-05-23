@@ -7,7 +7,6 @@ However, you should be carefull to not mess up your files when you commit using 
 1. Download and install Visual Studio Code for your platform from https://code.visualstudio.com/
 2. Install the VS Code extension C# (OmniSharp)
 3. Install .NET Core from https://www.microsoft.com/net/download/
-4. Copy folder ".vscode" located in /_Development/DevSettings to the workspace root to have some prebuilt Visual Studio Code tasks for build, run and publish both projects
 
 ## Setup PT Magic for development
 1. Copy settings.analyzer.json and settings.general.json from /_Development/DevSettings to /PTMagic

@@ -59,7 +59,7 @@ namespace Core.ProfitTrailer {
         }
       }
 
-      if (result.Equals("Default")) {
+      if (result.Equals("")) {
         SettingsHandler.WriteHeaderLines("Pairs", ptmagicInstance);
         SettingsHandler.WriteHeaderLines("DCA", ptmagicInstance);
         SettingsHandler.WriteHeaderLines("Indicators", ptmagicInstance);
