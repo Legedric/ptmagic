@@ -1067,7 +1067,7 @@ namespace Core.Main {
     }
 
     private void ActivateSetting(ref bool headerLinesAdded, ref GlobalSetting triggeredSetting, ref List<string> matchedTriggers) {
-      string activeSettingName = SettingsHandler.GetActiveSetting(this.PTMagicConfiguration, this.DefaultSettingName, ref headerLinesAdded, this.PairsLines, this.DCALines, this.IndicatorsLines, this.Log);
+      string activeSettingName = SettingsHandler.GetActiveSetting(this, ref headerLinesAdded);
       if (activeSettingName.Equals("") && this.PTMagicConfiguration.GeneralSettings.Application.TestMode) {
         activeSettingName = this.ActiveSetting;
       }

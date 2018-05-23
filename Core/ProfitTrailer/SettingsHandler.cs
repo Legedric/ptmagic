@@ -46,10 +46,10 @@ namespace Core.ProfitTrailer {
       return result;
     }
 
-    public static string GetActiveSetting(PTMagicConfiguration systemConfiguration, string defaultSettingName, ref bool headerLinesAdded, List<string> pairsLines, List<string> dcaLines, List<string> indicatorsLines, LogHelper log) {
+    public static string GetActiveSetting(PTMagic ptmagicInstance, ref bool headerLinesAdded) {
       string result = "";
 
-      foreach (string line in pairsLines) {
+      foreach (string line in ptmagicInstance.PairsLines) {
         if (line.IndexOf("PTMagic_ActiveSetting", StringComparison.InvariantCultureIgnoreCase) > -1) {
           result = line.Replace("PTMagic_ActiveSetting", "", StringComparison.InvariantCultureIgnoreCase);
           result = result.Replace("#", "");
@@ -59,24 +59,26 @@ namespace Core.ProfitTrailer {
         }
       }
 
-      if (result.Equals("")) {
-        SettingsHandler.WriteHeaderLines(ref pairsLines, defaultSettingName, systemConfiguration);
-        SettingsHandler.WriteHeaderLines(ref dcaLines, defaultSettingName, systemConfiguration);
-        SettingsHandler.WriteHeaderLines(ref indicatorsLines, defaultSettingName, systemConfiguration);
+      if (result.Equals("Default")) {
+        SettingsHandler.WriteHeaderLines("Pairs", ptmagicInstance);
+        SettingsHandler.WriteHeaderLines("DCA", ptmagicInstance);
+        SettingsHandler.WriteHeaderLines("Indicators", ptmagicInstance);
         headerLinesAdded = true;
       }
 
       return result;
     }
 
-    public static void WriteHeaderLines(ref List<string> lines, string settingName, PTMagicConfiguration systemConfiguration) {
+    public static void WriteHeaderLines(string fileType, PTMagic ptmagicInstance) {
+      List<string> fileLines = (List<string>)ptmagicInstance.GetType().GetProperty(fileType + "Lines").GetValue(ptmagicInstance, null);
+
       // Writing Header lines
-      lines.Insert(0, "");
-      lines.Insert(0, "# ####################################");
-      lines.Insert(0, "# PTMagic_LastChanged = " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
-      lines.Insert(0, "# PTMagic_ActiveSetting = " + SystemHelper.StripBadCode(settingName, Constants.WhiteListProperties));
-      lines.Insert(0, "# ####### PTMagic Current Setting ########");
-      lines.Insert(0, "# ####################################");
+      fileLines.Insert(0, "");
+      fileLines.Insert(0, "# ####################################");
+      fileLines.Insert(0, "# PTMagic_LastChanged = " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
+      fileLines.Insert(0, "# PTMagic_ActiveSetting = " + SystemHelper.StripBadCode(ptmagicInstance.DefaultSettingName, Constants.WhiteListProperties));
+      fileLines.Insert(0, "# ####### PTMagic Current Setting ########");
+      fileLines.Insert(0, "# ####################################");
     }
 
     public static Dictionary<string, string> GetPropertiesAsDictionary(List<string> propertyLines) {
