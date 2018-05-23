@@ -1090,7 +1090,7 @@ namespace Core.Main {
 
           // Setting not set => Change setting
           this.Log.DoLogInfo("Switching global settings to '" + triggeredSetting.SettingName + "'...");
-          SettingsHandler.CompileProperties(this.DefaultSettingName, triggeredSetting, this.PTMagicConfiguration, this.PairsLines, this.DCALines, this.IndicatorsLines, this.Log);
+          SettingsHandler.CompileProperties(this, triggeredSetting);
           this.GlobalSettingWritten = true;
           this.Log.DoLogInfo("Setting '" + triggeredSetting.SettingName + "' now active!");
 

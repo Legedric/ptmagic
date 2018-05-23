@@ -5,11 +5,11 @@ _[Ll]ogfiles
 _[Ll]og
 _[Ll]ogs
 _[Dd]ata
+_[Rr]eleases
 _backups
 LocalProfitTrailer
 PTMagic/settings.*.json
 Monitor/appsettings.json
-/.vscode/tasks.json
 
 
 
@@ -19,6 +19,7 @@ Monitor/appsettings.json
 .vscode/*
 !.vscode/settings.json
 !.vscode/launch.json
+!.vscode/tasks.json
 !.vscode/extensions.json
 
 

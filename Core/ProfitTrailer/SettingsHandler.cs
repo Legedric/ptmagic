@@ -79,6 +79,8 @@ namespace Core.ProfitTrailer {
       fileLines.Insert(0, "# PTMagic_ActiveSetting = " + SystemHelper.StripBadCode(ptmagicInstance.DefaultSettingName, Constants.WhiteListProperties));
       fileLines.Insert(0, "# ####### PTMagic Current Setting ########");
       fileLines.Insert(0, "# ####################################");
+
+      ptmagicInstance.GetType().GetProperty(fileType + "Lines").SetValue(ptmagicInstance, fileLines);
     }
 
     public static Dictionary<string, string> GetPropertiesAsDictionary(List<string> propertyLines) {
@@ -112,26 +114,29 @@ namespace Core.ProfitTrailer {
       return result;
     }
 
-    public static void CompileProperties(string defaultSettingName, GlobalSetting setting, PTMagicConfiguration systemConfiguration, List<string> pairsLines, List<string> dcaLines, List<string> indicatorsLines, LogHelper log) {
-      SettingsHandler.BuildPropertyLines(ref pairsLines, defaultSettingName, setting, setting.PairsProperties, "pairs", systemConfiguration, log);
-      SettingsHandler.BuildPropertyLines(ref dcaLines, defaultSettingName, setting, setting.DCAProperties, "dca", systemConfiguration, log);
-      SettingsHandler.BuildPropertyLines(ref indicatorsLines, defaultSettingName, setting, setting.IndicatorsProperties, "indicators", systemConfiguration, log);
+    public static void CompileProperties(PTMagic ptmagicInstance, GlobalSetting setting) {
+      SettingsHandler.BuildPropertyLines("Pairs", ptmagicInstance, setting);
+      SettingsHandler.BuildPropertyLines("DCA", ptmagicInstance, setting);
+      SettingsHandler.BuildPropertyLines("Indicators", ptmagicInstance, setting);
     }
 
-    public static void BuildPropertyLines(ref List<string> lines, string defaultSettingName, GlobalSetting setting, Dictionary<string, object> properties, string propertiesType, PTMagicConfiguration systemConfiguration, LogHelper log) {
+    public static void BuildPropertyLines(string fileType, PTMagic ptmagicInstance, GlobalSetting setting) {
       List<string> result = new List<string>();
 
+      List<string> fileLines = (List<string>)ptmagicInstance.GetType().GetProperty(fileType + "Lines").GetValue(ptmagicInstance, null);
+
+      Dictionary<string, object> properties = (Dictionary<string, object>)setting.GetType().GetProperty(fileType + "Properties").GetValue(setting, null);
       if (properties != null) {
 
         // Building Properties
-        if (!setting.SettingName.Equals(defaultSettingName, StringComparison.InvariantCultureIgnoreCase) && systemConfiguration.GeneralSettings.Application.AlwaysLoadDefaultBeforeSwitch && !properties.ContainsKey("File")) {
+        if (!setting.SettingName.Equals(ptmagicInstance.DefaultSettingName, StringComparison.InvariantCultureIgnoreCase) && ptmagicInstance.PTMagicConfiguration.GeneralSettings.Application.AlwaysLoadDefaultBeforeSwitch && !properties.ContainsKey("File")) {
 
           // Load default settings as basis for the switch
-          GlobalSetting defaultSetting = systemConfiguration.AnalyzerSettings.GlobalSettings.Find(a => a.SettingName.Equals(defaultSettingName, StringComparison.InvariantCultureIgnoreCase));
+          GlobalSetting defaultSetting = ptmagicInstance.PTMagicConfiguration.AnalyzerSettings.GlobalSettings.Find(a => a.SettingName.Equals(ptmagicInstance.DefaultSettingName, StringComparison.InvariantCultureIgnoreCase));
           if (defaultSetting != null) {
 
             Dictionary<string, object> defaultProperties = new Dictionary<string, object>();
-            switch (propertiesType) {
+            switch (fileType.ToLower()) {
               case "pairs":
                 defaultProperties = defaultSetting.PairsProperties;
                 break;
@@ -144,18 +149,18 @@ namespace Core.ProfitTrailer {
             }
 
             if (defaultProperties.ContainsKey("File")) {
-              lines = SettingsFiles.GetPresetFileLinesAsList(defaultSetting.SettingName, defaultProperties["File"].ToString(), systemConfiguration);
+              fileLines = SettingsFiles.GetPresetFileLinesAsList(defaultSetting.SettingName, defaultProperties["File"].ToString(), ptmagicInstance.PTMagicConfiguration);
             }
           }
         } else {
 
           // Check if settings are configured in a seperate file
           if (properties.ContainsKey("File")) {
-            lines = SettingsFiles.GetPresetFileLinesAsList(setting.SettingName, properties["File"].ToString(), systemConfiguration);
+            fileLines = SettingsFiles.GetPresetFileLinesAsList(setting.SettingName, properties["File"].ToString(), ptmagicInstance.PTMagicConfiguration);
           }
         }
 
-        foreach (string line in lines) {
+        foreach (string line in fileLines) {
           if (line.IndexOf("PTMagic_ActiveSetting", StringComparison.InvariantCultureIgnoreCase) > -1) {
 
             // Setting current active setting
@@ -184,7 +189,7 @@ namespace Core.ProfitTrailer {
         }
       }
 
-      lines = result;
+      ptmagicInstance.GetType().GetProperty(fileType + "Lines").SetValue(ptmagicInstance, result);
     }
 
     public static List<string> BuildPropertyLine(List<string> result, string settingName, string line, Dictionary<string, object> properties, string settingProperty) {
