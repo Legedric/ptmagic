@@ -418,6 +418,8 @@ namespace Core.Main {
       this.Log.DoLogInfo("");
       this.Log.DoLogInfo("Starting PTMagic in " + Directory.GetCurrentDirectory());
 
+      Console.WriteLine($"(Framework: {Path.GetDirectoryName(typeof(object).Assembly.Location)})");
+
       if (!this.RunStartupChecks()) {
         return false;
       }
