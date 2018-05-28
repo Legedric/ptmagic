@@ -417,8 +417,7 @@ namespace Core.Main {
       this.Log.DoLogInfo("                         Version " + this.CurrentVersion.Major + "." + this.CurrentVersion.Minor + "." + this.CurrentVersion.Build);
       this.Log.DoLogInfo("");
       this.Log.DoLogInfo("Starting PTMagic in " + Directory.GetCurrentDirectory());
-
-      Console.WriteLine($"(Framework: {Path.GetDirectoryName(typeof(object).Assembly.Location)})");
+      this.Log.DoLogInfo("with .NET Core: " + Path.GetDirectoryName(typeof(object).Assembly.Location));
 
       if (!this.RunStartupChecks()) {
         return false;
