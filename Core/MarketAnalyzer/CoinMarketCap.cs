@@ -35,7 +35,7 @@ namespace Core.MarketAnalyzer {
                   market.Symbol = currencyTicker.First["symbol"].ToString();
                   market.Price = (double)currencyTicker.First["quotes"]["USD"]["price"];
                   market.Volume24h = (double)currencyTicker.First["quotes"]["USD"]["volume_24h"];
-                  if (currencyTicker.First["quotes"]["USD"]["percent_change_24h"] != null) {
+                  if (!String.IsNullOrEmpty(currencyTicker.First["quotes"]["USD"]["percent_change_24h"])) {
                     market.TrendChange24h = (double)currencyTicker.First["quotes"]["USD"]["percent_change_24h"];
                   }
 
