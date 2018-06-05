@@ -29,6 +29,8 @@ namespace Core.Main {
     private int _runCount = 0;
     private int _totalElapsedSeconds = 0;
     private int _profitTrailerMajorVersion = 0;
+    private int _configCheckRetryCount = 0;
+    private bool _configCheckResult = true;
     private bool _globalSettingWritten = false;
     private bool _singleMarketSettingWritten = false;
     private bool _enforceSettingsReapply = false;
@@ -425,7 +427,21 @@ namespace Core.Main {
       if (!this.InitializeConfiguration()) {
         return false;
       }
-      if (!this.RunConfigurationChecks()) {
+
+      _configCheckResult = this.RunConfigurationChecks();
+      if (!_configCheckResult) {
+        this.Log.DoLogInfo("Starting configuration check retry in 5 seconds...");
+        System.Timers.Timer configCheckTimer = new System.Timers.Timer(5000);
+        configCheckTimer.Enabled = true;
+        configCheckTimer.Elapsed += new System.Timers.ElapsedEventHandler(this.ConfigCheckTimer_Elapsed);
+
+        while (!_configCheckResult && _configCheckRetryCount < 10) {
+          Thread.Sleep(100);
+        }
+        configCheckTimer.Stop();
+      }
+
+      if (!_configCheckResult) {
         return false;
       }
 
@@ -581,7 +597,12 @@ namespace Core.Main {
         this.Log.DoLogError("Profit Trailer 1.x check: Trading settings directory not found (" + ptTradingPath + ")");
         result = false;
       }
-      this.Log.DoLogInfo("========== CHECKS FOR Profit Trailer 1.x COMPLETED! ==========");
+      
+      if (result) {
+        this.Log.DoLogInfo("========== CHECKS FOR Profit Trailer 1.x COMPLETED! ==========");
+      } else {
+         this.Log.DoLogInfo("========== CHECKS FOR Profit Trailer 1.x FAILED! ==========");
+      }
 
       return result;
     }
@@ -622,7 +643,12 @@ namespace Core.Main {
         this.Log.DoLogError("Profit Trailer 2.x check: Your Profit Trailer monitor (" + this.PTMagicConfiguration.GeneralSettings.Application.ProfitTrailerMonitorURL + ") is not available! Make sure your Profit Trailer bot is up and running and your monitor is accessible.");
         result = false;
       }
-      this.Log.DoLogInfo("========== CHECKS FOR Profit Trailer 2.x COMPLETED! ==========");
+
+      if (result) {
+        this.Log.DoLogInfo("========== CHECKS FOR Profit Trailer 2.x COMPLETED! ==========");
+      } else {
+         this.Log.DoLogInfo("========== CHECKS FOR Profit Trailer 2.x FAILED! ==========");
+      }
 
       return result;
     }
@@ -640,6 +666,16 @@ namespace Core.Main {
     #endregion
 
     #region PTMagic Interval Methods
+    public void ConfigCheckTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+      // Reinit config in case the user changed something
+      this.InitializeConfiguration();
+      _configCheckResult = this.RunConfigurationChecks();
+      _configCheckRetryCount++;
+      if (!_configCheckResult) {
+        this.Log.DoLogError("Configuration check retry " + _configCheckRetryCount + "/10 failed, starting next retry in 5 seconds...");
+      }
+    }
+
     public void PTMagicIntervalTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
       // Check if the bot is idle
       if (this.State == Constants.PTMagicBotState_Idle) {
