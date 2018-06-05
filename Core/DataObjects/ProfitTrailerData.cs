@@ -148,7 +148,8 @@ namespace Core.Main.DataObjects {
         if (dcaLogData.SellStrategy == null) dcaLogData.SellStrategy = "";
 
         if (rdld.positive != null) {
-          dcaLogData.IsTrailing = rdld.positive.IndexOf("true", StringComparison.InvariantCultureIgnoreCase) > -1;
+          dcaLogData.IsTrailing = rdld.positive.IndexOf("trailing", StringComparison.InvariantCultureIgnoreCase) > -1;
+          dcaLogData.IsTrue = rdld.positive.IndexOf("true", StringComparison.InvariantCultureIgnoreCase) > -1;
         } else {
           if (rdld.buyStrategies != null) {
             foreach (PTStrategy bs in rdld.buyStrategies) {
@@ -161,7 +162,8 @@ namespace Core.Main.DataObjects {
               buyStrategy.CurrentValue = bs.currentValue;
               buyStrategy.CurrentValuePercentage = bs.currentValuePercentage;
               buyStrategy.Decimals = bs.decimals;
-              buyStrategy.IsTrailing = bs.positive.IndexOf("true", StringComparison.InvariantCultureIgnoreCase) > -1;
+              buyStrategy.IsTrailing = bs.positive.IndexOf("trailing", StringComparison.InvariantCultureIgnoreCase) > -1;
+              buyStrategy.IsTrue = bs.positive.IndexOf("true", StringComparison.InvariantCultureIgnoreCase) > -1;
 
               dcaLogData.BuyStrategies.Add(buyStrategy);
             }
@@ -178,7 +180,8 @@ namespace Core.Main.DataObjects {
               sellStrategy.CurrentValue = ss.currentValue;
               sellStrategy.CurrentValuePercentage = ss.currentValuePercentage;
               sellStrategy.Decimals = ss.decimals;
-              sellStrategy.IsTrailing = ss.positive.IndexOf("true", StringComparison.InvariantCultureIgnoreCase) > -1;
+              sellStrategy.IsTrailing = ss.positive.IndexOf("trailing", StringComparison.InvariantCultureIgnoreCase) > -1;
+              sellStrategy.IsTrue = ss.positive.IndexOf("true", StringComparison.InvariantCultureIgnoreCase) > -1;
 
               dcaLogData.SellStrategies.Add(sellStrategy);
             }
@@ -231,7 +234,8 @@ namespace Core.Main.DataObjects {
             sellStrategy.CurrentValue = ss.currentValue;
             sellStrategy.CurrentValuePercentage = ss.currentValuePercentage;
             sellStrategy.Decimals = ss.decimals;
-            sellStrategy.IsTrailing = ss.positive.IndexOf("true", StringComparison.InvariantCultureIgnoreCase) > -1;
+            sellStrategy.IsTrailing = ss.positive.IndexOf("trailing", StringComparison.InvariantCultureIgnoreCase) > -1;
+            sellStrategy.IsTrue = ss.positive.IndexOf("true", StringComparison.InvariantCultureIgnoreCase) > -1;
 
             dcaLogData.SellStrategies.Add(sellStrategy);
           }
@@ -271,7 +275,8 @@ namespace Core.Main.DataObjects {
         if (buyLogData.BuyStrategy == null) buyLogData.BuyStrategy = ""; 
 
         if (rbld.positive != null) {
-          buyLogData.IsTrailing = rbld.positive.IndexOf("true", StringComparison.InvariantCultureIgnoreCase) > -1;
+          buyLogData.IsTrailing = rbld.positive.IndexOf("trailing", StringComparison.InvariantCultureIgnoreCase) > -1;
+          buyLogData.IsTrue = rbld.positive.IndexOf("true", StringComparison.InvariantCultureIgnoreCase) > -1;
         } else {
           if (rbld.buyStrategies != null) {
             foreach (PTStrategy bs in rbld.buyStrategies) {
@@ -284,7 +289,8 @@ namespace Core.Main.DataObjects {
               buyStrategy.CurrentValue = bs.currentValue;
               buyStrategy.CurrentValuePercentage = bs.currentValuePercentage;
               buyStrategy.Decimals = bs.decimals;
-              buyStrategy.IsTrailing = bs.positive.IndexOf("true", StringComparison.InvariantCultureIgnoreCase) > -1;
+              buyStrategy.IsTrailing = bs.positive.IndexOf("trailing", StringComparison.InvariantCultureIgnoreCase) > -1;
+              buyStrategy.IsTrue = bs.positive.IndexOf("true", StringComparison.InvariantCultureIgnoreCase) > -1;
 
               buyLogData.BuyStrategies.Add(buyStrategy);
             }

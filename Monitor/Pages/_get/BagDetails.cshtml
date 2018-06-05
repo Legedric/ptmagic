@@ -38,10 +38,15 @@
 
   bool isTrailingBuyActive = Model.DCALogData.IsTrailing;
   if (Model.DCALogData.BuyStrategies.Count > 0) {
-    isTrailingBuyActive = (Model.DCALogData.BuyStrategies.FindAll(bs => !bs.IsTrailing).Count == 0);
+    isTrailingBuyActive = (Model.DCALogData.BuyStrategies.FindAll(bs => bs.IsTrailing).Count > 0);
   }
 
-  string buyStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, Model.DCALogData.BuyStrategies, Model.DCALogData.BuyStrategy, isTrailingBuyActive);
+  bool isBuyStrategyTrue = Model.DCALogData.IsTrue;
+  if (Model.DCALogData.BuyStrategies.Count > 0) {
+    isBuyStrategyTrue = (Model.DCALogData.BuyStrategies.FindAll(bs => !bs.IsTrue).Count == 0);
+  }
+
+  string buyStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, Model.DCALogData.BuyStrategies, Model.DCALogData.BuyStrategy, isBuyStrategyTrue, isTrailingBuyActive);
   if (!Core.ProfitTrailer.StrategyHelper.IsValidStrategy(buyStrategyText, true)) {
     buyDisabled = true;
   }
@@ -62,10 +67,15 @@
 
   bool isTrailingSellActive = false;
   if (Model.DCALogData.SellStrategies.Count > 0) {
-    isTrailingSellActive = (Model.DCALogData.SellStrategies.FindAll(ss => !ss.IsTrailing).Count == 0);
+    isTrailingSellActive = (Model.DCALogData.SellStrategies.FindAll(ss => ss.IsTrailing).Count > 0);
   }
 
-  string sellStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, Model.DCALogData.SellStrategies, Model.DCALogData.SellStrategy, isTrailingSellActive);
+  bool isSellStrategyTrue = false;
+  if (Model.DCALogData.BuyStrategies.Count > 0) {
+    isSellStrategyTrue = (Model.DCALogData.SellStrategies.FindAll(ss => !ss.IsTrue).Count == 0);
+  }
+
+  string sellStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, Model.DCALogData.SellStrategies, Model.DCALogData.SellStrategy, isSellStrategyTrue, isTrailingSellActive);
   string currentSellValueText = Core.ProfitTrailer.StrategyHelper.GetCurrentValueText(Model.DCALogData.SellStrategies, Model.DCALogData.SellStrategy, Model.DCALogData.CurrentHighBBValue, Model.DCALogData.ProfitPercent, true);
   string triggerSellValueText = Core.ProfitTrailer.StrategyHelper.GetTriggerValueText(Model.Summary, Model.DCALogData.SellStrategies, Model.DCALogData.SellStrategy, Model.DCALogData.BBTrigger, Model.DCALogData.SellTrigger, 0, true);
 

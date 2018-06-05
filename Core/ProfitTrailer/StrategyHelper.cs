@@ -205,10 +205,10 @@ namespace Core.ProfitTrailer {
       return result;
     }
 
-    public static string GetStrategyText(Summary summary, List<Strategy> strategies, string strategyText, bool isTrailingBuyActive) {
+    public static string GetStrategyText(Summary summary, List<Strategy> strategies, string strategyText, bool isTrue, bool isTrailingBuyActive) {
       if (strategies.Count > 0) {
         foreach (Strategy strategy in strategies) {
-          string textClass = (strategy.IsTrailing) ? "label-success" : "label-danger";
+          string textClass = (strategy.IsTrue) ? "label-success" : "label-danger";
           if (!StrategyHelper.IsValidStrategy(strategy.Name)) {
             strategyText += "<span class=\"label label-warning\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"" + strategy.Name + "\">" + StrategyHelper.GetStrategyShortcut(strategy.Name, false) + "</span> ";
           } else {
@@ -220,9 +220,12 @@ namespace Core.ProfitTrailer {
           strategyText += " <i class=\"fa fa-flag text-success\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Trailing active!\"></i>";
         }
       } else {
-        if (isTrailingBuyActive) {
+        if (isTrue) {
           strategyText = "<span class=\"label label-success\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"" + strategyText + "\">" + StrategyHelper.GetStrategyShortcut(strategyText, true) + "</span>";
-          strategyText += " <i class=\"fa fa-flag text-success\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Trailing active!\"></i>";
+
+          if (isTrailingBuyActive) {
+            strategyText += " <i class=\"fa fa-flag text-success\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"Trailing active!\"></i>";
+          }
         } else {
           if (StrategyHelper.IsValidStrategy(strategyText)) {
             strategyText = "<span class=\"label label-danger\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"" + strategyText + "\">" + StrategyHelper.GetStrategyShortcut(strategyText, true) + "</span>";

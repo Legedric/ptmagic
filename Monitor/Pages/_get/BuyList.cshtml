@@ -18,11 +18,16 @@
 
   bool isTrailingBuyActive = buyLogEntry.IsTrailing;
   if (buyLogEntry.BuyStrategies.Count > 0) {
-    isTrailingBuyActive = (buyLogEntry.BuyStrategies.FindAll(bs => !bs.IsTrailing).Count == 0);
+    isTrailingBuyActive = (buyLogEntry.BuyStrategies.FindAll(bs => bs.IsTrailing).Count > 0);
+  }
+
+  bool isBuyStrategyTrue = buyLogEntry.IsTrue;
+  if (buyLogEntry.BuyStrategies.Count > 0) {
+    isBuyStrategyTrue = (buyLogEntry.BuyStrategies.FindAll(bs => !bs.IsTrue).Count == 0);
   }
 
   bool buyDisabled = false;
-  string buyStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, buyLogEntry.BuyStrategies, buyLogEntry.BuyStrategy, isTrailingBuyActive);
+  string buyStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, buyLogEntry.BuyStrategies, buyLogEntry.BuyStrategy, isBuyStrategyTrue, isTrailingBuyActive);
   if (!Core.ProfitTrailer.StrategyHelper.IsValidStrategy(buyStrategyText, true)) {
     buyDisabled = true;
   }

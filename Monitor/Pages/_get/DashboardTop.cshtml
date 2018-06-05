@@ -30,11 +30,16 @@
 
               bool isTrailingBuyActive = buyLogEntry.IsTrailing;
               if (buyLogEntry.BuyStrategies.Count > 0) {
-                isTrailingBuyActive = (buyLogEntry.BuyStrategies.FindAll(bs => !bs.IsTrailing) == null);
+                isTrailingBuyActive = (buyLogEntry.BuyStrategies.FindAll(bs => bs.IsTrailing).Count > 0);
+              }
+
+              bool isBuyStrategyTrue = buyLogEntry.IsTrue;
+              if (buyLogEntry.BuyStrategies.Count > 0) {
+                isBuyStrategyTrue = (buyLogEntry.BuyStrategies.FindAll(bs => !bs.IsTrue).Count == 0);
               }
 
               bool buyDisabled = false;
-              string buyStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, buyLogEntry.BuyStrategies, buyLogEntry.BuyStrategy, isTrailingBuyActive);
+              string buyStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, buyLogEntry.BuyStrategies, buyLogEntry.BuyStrategy, isBuyStrategyTrue, isTrailingBuyActive);
               if (!Core.ProfitTrailer.StrategyHelper.IsValidStrategy(buyStrategyText, true)) {
                 buyDisabled = true;
               }
@@ -98,21 +103,31 @@
 
               bool isTrailingBuyActive = dcaLogEntry.IsTrailing;
               if (dcaLogEntry.BuyStrategies.Count > 0) {
-                isTrailingBuyActive = (dcaLogEntry.BuyStrategies.FindAll(bs => !bs.IsTrailing) == null);
+                isTrailingBuyActive = (dcaLogEntry.BuyStrategies.FindAll(bs => bs.IsTrailing).Count > 0);
+              }
+
+              bool isBuyStrategyTrue = dcaLogEntry.IsTrue;
+              if (dcaLogEntry.BuyStrategies.Count > 0) {
+                isBuyStrategyTrue = (dcaLogEntry.BuyStrategies.FindAll(bs => !bs.IsTrue).Count == 0);
               }
 
               bool isTrailingSellActive = false;
               if (dcaLogEntry.SellStrategies.Count > 0) {
-                isTrailingSellActive = (dcaLogEntry.SellStrategies.FindAll(ss => !ss.IsTrailing) == null);
+                isTrailingSellActive = (dcaLogEntry.SellStrategies.FindAll(ss => ss.IsTrailing).Count > 0);
+              }
+
+              bool isSellStrategyTrue = false;
+              if (dcaLogEntry.BuyStrategies.Count > 0) {
+                isSellStrategyTrue = (dcaLogEntry.SellStrategies.FindAll(ss => !ss.IsTrue).Count == 0);
               }
 
               bool buyDisabled = false;
-              string buyStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, dcaLogEntry.BuyStrategies, dcaLogEntry.BuyStrategy, isTrailingBuyActive);
+              string buyStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, dcaLogEntry.BuyStrategies, dcaLogEntry.BuyStrategy, isBuyStrategyTrue, isTrailingBuyActive);
               if (!Core.ProfitTrailer.StrategyHelper.IsValidStrategy(buyStrategyText, true)) {
                 buyDisabled = true;
               }
 
-              string sellStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, dcaLogEntry.SellStrategies, dcaLogEntry.SellStrategy, isTrailingSellActive);
+              string sellStrategyText = Core.ProfitTrailer.StrategyHelper.GetStrategyText(Model.Summary, dcaLogEntry.SellStrategies, dcaLogEntry.SellStrategy, isSellStrategyTrue, isTrailingSellActive);
 
               <tr>
                 @if (mps == null || mps.ActiveSingleSettings == null || mps.ActiveSingleSettings.Count == 0) {
