@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Microsoft.AspNetCore.Http;
 using Core.Main;
 using Core.Main.DataObjects.PTMagicData;
@@ -28,6 +29,7 @@ namespace Monitor.Pages {
     public ActionResult OnPost() {
       base.Init();
 
+      Response.StatusCode = (int)HttpStatusCode.InternalServerError;
       JsonResult result = new JsonResult("Error saving preset file.");
 
       MemoryStream stream = new MemoryStream();
@@ -42,7 +44,18 @@ namespace Monitor.Pages {
             if (System.IO.File.Exists(settingPropertiesPath)) {
               try {
                 System.IO.File.WriteAllText(settingPropertiesPath, spff.FileContent);
-              } catch { }
+                Response.StatusCode = (int)HttpStatusCode.OK;
+                result = new JsonResult("Settings saved to file " + spff.FileName + " in " + PTMagicBasePath + Constants.PTMagicPathPresets + Path.DirectorySeparatorChar + spff.SettingName + Path.DirectorySeparatorChar);
+                Log.DoLogDebug("Settings saved to file " + spff.FileName + " in " + PTMagicBasePath + Constants.PTMagicPathPresets + Path.DirectorySeparatorChar + spff.SettingName + Path.DirectorySeparatorChar);
+              } catch (Exception ex) {
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                result = new JsonResult("Error saving preset file:" + ex.Message);
+                Log.DoLogError("Error saving preset file:" + ex.Message);
+              }
+            } else {
+              Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+              result = new JsonResult("Error saving preset file: " + settingPropertiesPath + " not found!");
+              Log.DoLogError("Error saving preset file: " + settingPropertiesPath + " not found!");
             }
           }
         }
