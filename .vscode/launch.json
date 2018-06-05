@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "VS build PTMagic",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/PTMagic/bin/Debug/netcoreapp2.0/PTMagic.dll",
+            "program": "${workspaceFolder}/PTMagic/bin/Debug/netcoreapp2.1/PTMagic.dll",
             "args": [],
             "cwd": "${workspaceFolder}/PTMagic",
             "stopAtEntry": false,
@@ -28,13 +28,13 @@
             "request": "launch",
             "preLaunchTask": "VS build Monitor",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/Monitor/bin/Debug/netcoreapp2.0/Monitor.dll",
+            "program": "${workspaceFolder}/Monitor/bin/Debug/netcoreapp2.1/Monitor.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Monitor",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
             "launchBrowser": {
-                "enabled": true,
+                "enabled": false,
                 "args": "${auto-detect-url}",
                 "windows": {
                     "command": "cmd.exe",
