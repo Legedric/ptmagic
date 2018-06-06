@@ -40,6 +40,7 @@ namespace Monitor.Pages {
         if (requestBody.Length > 0) {
           SavePresetFileForm spff = JsonConvert.DeserializeObject<SavePresetFileForm>(requestBody);
           if (spff != null) {
+            spff.FileName = spff.FileName.Replace(".PROPERTIES", ".properties");
             string settingPropertiesPath = PTMagicBasePath + Constants.PTMagicPathPresets + Path.DirectorySeparatorChar + spff.SettingName + Path.DirectorySeparatorChar + spff.FileName;
             if (System.IO.File.Exists(settingPropertiesPath)) {
               try {
