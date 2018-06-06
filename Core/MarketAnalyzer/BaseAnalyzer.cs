@@ -56,8 +56,12 @@ namespace Core.MarketAnalyzer {
 
         return jsonObject;
       } catch (WebException ex) {
-        log.DoLogCritical(ex.Message, ex);
-        throw ex;
+        if (swallowException) {
+          // Do nothing, as we do not want to get this logged. Only uncritical functions uses this
+        } else {
+          log.DoLogCritical("Url: " + url + " Message: " + ex.Message, ex);
+          throw ex;
+        }
       } catch (Exception ex) {
         if (swallowException) {
           // Do nothing, as we do not want to get this logged. Only uncritical functions uses this
