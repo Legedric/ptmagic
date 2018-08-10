@@ -23,7 +23,21 @@ namespace Core.Main.DataObjects {
       _ptmBasePath = ptmBasePath;
       _systemConfiguration = systemConfiguration;
 
-      PTData rawPTData = JsonConvert.DeserializeObject<PTData>(File.ReadAllText(systemConfiguration.GeneralSettings.Application.ProfitTrailerPath + "ProfitTrailerData.json"));
+      // Find the path to the Profit Trailer data file
+      string ptDataFilePath = Path.Combine(systemConfiguration.GeneralSettings.Application.ProfitTrailerPath, "data", "ProfitTrailerData.json");
+
+      if (!File.Exists(ptDataFilePath))
+      {
+        // Try the older location for PT 1.x and PT 2.0.x
+        ptDataFilePath = Path.Combine(systemConfiguration.GeneralSettings.Application.ProfitTrailerPath, "ProfitTrailerData.json");
+        if (!File.Exists(ptDataFilePath))
+        {
+          // Can't find the Profit Trailer Data
+          throw new Exception("Unable to load Profit Trailer data file at: " + ptDataFilePath);
+        }
+      }
+      
+      PTData rawPTData = JsonConvert.DeserializeObject<PTData>(File.ReadAllText(ptDataFilePath));
       if (rawPTData.SellLogData != null) {
         this.BuildSellLogData(rawPTData.SellLogData, _systemConfiguration);
       }
