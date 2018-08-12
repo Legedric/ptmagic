@@ -10,9 +10,12 @@ MD ..\Release\Latest
 :NOWINLATEST
 REM Remove previous release
 CD ..\Release\Latest
-DEL /F /S /Y *
+DEL /F /S /Q *
 
 REM Copy release files
-MKDIR PTMagic
+MD PTMagic
 XCOPY /Y /S ..\..\PTMagic\_defaults\* .\
 XCOPY /Y /S ..\..\PTMagic\bin\Release\PublishOutput .\PTMagic
+CD .\PTMagic
+DEL /F /S /Q _presets
+DEL /F /S /Q settings.*
