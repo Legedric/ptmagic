@@ -1,0 +1,39 @@
+﻿{
+  "GeneralSettings": {
+    "Application": {
+      "IsEnabled": true, // Enables the PTMagic bot (needs restart to take effect)
+      "TestMode": false, // If TestMode is active, no properties files will be changed
+      "ProfitTrailerPath": "YOUR PROFIT TRAILER PATH", // Path to your Profit Trailer main directory (use double backslashes for windows like C:\\ProfitTrailer\\)
+      "Exchange": "Bittrex", // The exchange your are running Profit Trailer on
+      "StartBalance": 0, // The balance you had in your wallet when you started working with Profit Trailer
+      "TimezoneOffset": "+0:00", // Your timezone offset from UTC time
+      "MainFiatCurrency": "USD", // Your main fiat currency that will be used in the monitor
+      "AlwaysLoadDefaultBeforeSwitch": true, // If this is enabled, PTMagic will always load default settings before switching to another setting
+      "FloodProtectionMinutes": 15, // If a price trend is just zig-zagging around its trigger, you may want to protect your settings from getting switched back and forth every minute
+      "InstanceName": "PT Magic" // The name of the instance of this bot. This will be used in your monitor and your Telegram messages. In case you are running more than one bot, you may set different names to separate them
+    },
+    "Monitor": {
+      "IsPasswordProtected": true, // Defines if your monitor will be asking to setup a password on its first start
+      "OpenBrowserOnStart": false, // If active, a browser window will open as soon as you start the monitor
+      "Port": 5000, // The port you want to run your monitor on
+      "RootUrl": "/", // The root Url of your monitor
+      "GraphIntervalMinutes": 60, // The interval for the monitor market trend graph to draw points
+      "GraphMaxTimeframeHours": 24, // This will enable you to define the timeframe that your graph for market trends covers
+      "RefreshSeconds": 30, // The refresh interval of your monitor main page
+      "LinkPlatform": "TradingView", // The platform to which the pair name will link if you click on it
+      "MaxTopMarkets": 20, // The amount of top markets being shown in your Sales Analyzer
+      "MaxDailySummaries": 10, // The amount of "Last Days" being shown in your Sales Analyzer
+      "MaxMonthlySummaries": 10 // The amount of "Last Months" being shown in your Sales Analyzer
+    },
+    "Backup": {
+      "IsEnabled": true, // Enables a backup procedure for your properties files. Before every switch PTMagic will backup the current properties
+      "MaxHours": 12 // Max number of hours to keep backup files
+    },
+    "Telegram": {
+      "IsEnabled": false, // Enables PT Magic to send Telegram messages
+      "BotToken": "", // Your Telegram bot token
+      "ChatId": 0, // Your Telegram Chat ID
+      "SilentMode": false // If SilentMode is active, no notification sound or vibration will happen when the bot sends a Telegram message
+    }
+  }
+}
