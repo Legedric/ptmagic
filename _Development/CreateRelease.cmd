@@ -14,5 +14,5 @@ DEL /F /S /Y *
 
 REM Copy release files
 MKDIR PTMagic
-XCOPY /Y /S ..\..\PTMagic\_defaults\_default* .\
+XCOPY /Y /S ..\..\PTMagic\_defaults\* .\
 XCOPY /Y /S ..\..\PTMagic\bin\Release\PublishOutput .\PTMagic
