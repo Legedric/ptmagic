@@ -1,0 +1,24 @@
+{
+  "apps": [
+    {
+      "name": "ptm test-btc2",
+      "cwd": ".",
+      "script": "PTMagic.dll",
+      "node_args": [],
+      "log_date_format": "YYYY-MM-DD HH:mm Z",
+      "exec_interpreter": "dotnet",
+      "exec_mode": "fork",
+      "autorestart": false
+    },
+    {
+      "name": "ptm-mon test-btc2",
+      "cwd": ".",
+      "script": "Monitor/Monitor.dll",
+      "node_args": [],
+      "log_date_format": "YYYY-MM-DD HH:mm Z",
+      "exec_interpreter": "dotnet",
+      "exec_mode": "fork",
+      "autorestart": false
+    }
+  ]
+}

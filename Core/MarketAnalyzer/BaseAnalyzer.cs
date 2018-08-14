@@ -17,6 +17,7 @@ namespace Core.MarketAnalyzer {
       HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
       request.ContentType = "application/json";
       request.UserAgent = "PTMagic.Import";
+      request.KeepAlive = true;
 
       try {
         HttpWebResponse httpResponse = (HttpWebResponse)request.GetResponse();
@@ -44,6 +45,7 @@ namespace Core.MarketAnalyzer {
       HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
       request.ContentType = "application/json";
       request.UserAgent = "PTMagic.Import";
+      request.KeepAlive = true;
 
       try {
         HttpWebResponse httpResponse = (HttpWebResponse)request.GetResponse();
@@ -80,6 +82,7 @@ namespace Core.MarketAnalyzer {
       HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
       request.ContentType = "application/json";
       request.UserAgent = "PTMagic.Import";
+      request.KeepAlive = true;
 
       try {
         HttpWebResponse httpResponse = (HttpWebResponse)request.GetResponse();
@@ -107,6 +110,7 @@ namespace Core.MarketAnalyzer {
       HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
       request.ContentType = "application/json";
       request.UserAgent = "PTMagic.Import";
+      request.KeepAlive = true;
 
       try {
         HttpWebResponse httpResponse = (HttpWebResponse)request.GetResponse();
