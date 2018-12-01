@@ -18,7 +18,7 @@ namespace Core.MarketAnalyzer {
         string baseUrl = "https://bittrex.com/api/v1.1/public/getmarketsummary?market=USDT-" + mainMarket;
 
         log.DoLogInfo("Poloniex - Getting main market price...");
-        Dictionary<string, dynamic> jsonObject = GetJsonFromURL(baseUrl, log);
+        Dictionary<string, dynamic> jsonObject = GetJsonFromURL(baseUrl, log, "");
         if (jsonObject.Count > 0) {
           if (jsonObject["success"]) {
             log.DoLogInfo("Poloniex - Market data received for USDT_" + mainMarket);
@@ -43,7 +43,7 @@ namespace Core.MarketAnalyzer {
         string baseUrl = "https://poloniex.com/public?command=returnTicker";
 
         log.DoLogInfo("Poloniex - Getting market data...");
-        Dictionary<string, dynamic> jsonObject = GetJsonFromURL(baseUrl, log);
+        Dictionary<string, dynamic> jsonObject = GetJsonFromURL(baseUrl, log, "");
         if (jsonObject.Count > 0) {
           log.DoLogInfo("Poloniex - Market data received for " + jsonObject.Count.ToString() + " currencies");
 

@@ -13,37 +13,36 @@ namespace Core.MarketAnalyzer {
     public static string GetMarketData(PTMagicConfiguration systemConfiguration, LogHelper log) {
       string result = "";
       try {
-        string baseUrl = "https://api.coinmarketcap.com/v2/ticker/";
+        string baseUrl = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?limit=200";
+        string cmcAPI = systemConfiguration.GeneralSettings.Application.CoinMarketCapAPIKey;
 
         log.DoLogInfo("CoinMarketCap - Getting market data...");
 
-        Dictionary<string, dynamic> jsonObject = GetJsonFromURL(baseUrl, log);
+        Dictionary<string, dynamic> jsonObject = GetJsonFromURL(baseUrl, log, cmcAPI);
+
         if (jsonObject.Count > 0) {
           if (jsonObject["data"] != null) {
-            Newtonsoft.Json.Linq.JObject jsonDataObject = (Newtonsoft.Json.Linq.JObject)jsonObject["data"];
-            log.DoLogInfo("CoinMarketCap - Market data received for " + jsonDataObject.Count.ToString() + " currencies");
+            log.DoLogInfo("CoinMarketCap - Market data received for " + jsonObject["data"].Count + " currencies");
 
             Dictionary<string, Market> markets = new Dictionary<string, Market>();
-            foreach (Newtonsoft.Json.Linq.JToken currencyTicker in jsonDataObject.Children()) {
 
-              if (currencyTicker.First["quotes"] != null) {
-
-                if (currencyTicker.First["quotes"]["USD"] != null) {
+            for (int i = 0; i < jsonObject["data"].Count; i++){
+              
+              if (jsonObject["data"][i]["quote"]["USD"] != null){
                   Market market = new Market();
                   market.Position = markets.Count + 1;
-                  market.Name = currencyTicker.First["name"].ToString();
-                  market.Symbol = currencyTicker.First["symbol"].ToString();
-                  market.Price = (double)currencyTicker.First["quotes"]["USD"]["price"];
-                  market.Volume24h = (double)currencyTicker.First["quotes"]["USD"]["volume_24h"];
-                  if (!String.IsNullOrEmpty(currencyTicker.First["quotes"]["USD"]["percent_change_24h"].ToString())) {
-                    market.TrendChange24h = (double)currencyTicker.First["quotes"]["USD"]["percent_change_24h"];
+                  market.Name = jsonObject["data"][i]["name"].ToString();
+                  market.Symbol = jsonObject["data"][i]["symbol"].ToString();
+                  market.Price = (double)jsonObject["data"][i]["quote"]["USD"]["price"];
+                  market.Volume24h = (double)jsonObject["data"][i]["quote"]["USD"]["volume_24h"];
+                  if (!String.IsNullOrEmpty(jsonObject["data"][i]["quote"]["USD"]["percent_change_24h"].ToString())) {
+                    market.TrendChange24h = (double)jsonObject["data"][i]["quote"]["USD"]["percent_change_24h"];
                   }
 
                   markets.Add(market.Name, market);
-                }
               }
             }
-
+            
             CoinMarketCap.CheckForMarketDataRecreation(markets, systemConfiguration, log);
 
             DateTime fileDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, 0).ToUniversalTime();
