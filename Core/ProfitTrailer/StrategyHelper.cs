@@ -153,6 +153,9 @@ namespace Core.ProfitTrailer {
           case "rsi":
           case "stoch":
           case "stochrsi":
+          case "stochrsik":
+          case "stochrsid":
+          case "stochrsicross":
           case "macd":
           case "obv":
           case "bbwidth":
@@ -201,6 +204,9 @@ namespace Core.ProfitTrailer {
           break;
         case "rsi":
         case "stochrsi":
+        case "stochrsik":
+        case "stochrsid":
+        case "stochrsicross":
         case "stoch":
         case "macd":
         case "obv":
