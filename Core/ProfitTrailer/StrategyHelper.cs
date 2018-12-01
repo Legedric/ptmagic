@@ -58,6 +58,15 @@ namespace Core.ProfitTrailer {
         case "stochrsi":
           result = "SRSI";
           break;
+        case "stochrsik":
+          result = "SRSIK";
+          break;
+        case "stochrsid":
+          result = "SRSID";
+          break;
+        case "stochrsicross":
+          result = "SRSIC";
+          break;      
         case "macd":
           result = "MACD";
           break;
@@ -148,6 +157,9 @@ namespace Core.ProfitTrailer {
           case "obv":
           case "bbwidth":
           case "anderson":
+          case "stochrsid":
+          case "stochrsik":
+          case "stochrsicross":
             result = true;
             break;
           default:
@@ -192,6 +204,9 @@ namespace Core.ProfitTrailer {
           break;
         case "rsi":
         case "stochrsi":
+        case "stochrsik":
+        case "stochrsid":
+        case "stochrsicross":
         case "stoch":
         case "macd":
         case "obv":
