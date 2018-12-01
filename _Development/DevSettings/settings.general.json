@@ -14,7 +14,8 @@
       "MainFiatCurrency": "USD", // Your main fiat currency that will be used in the monitor
       "AlwaysLoadDefaultBeforeSwitch": true, // If this is enabled, PTMagic will always load default settings before switching to another setting
       "FloodProtectionMinutes": 15, // If a price trend is just zig-zagging around its trigger, you may want to protect your settings from getting switched back and forth every minute
-      "InstanceName": "PT Magic Development" // The name of the instance of this bot. This will be used in your monitor and your Telegram messages. In case you are running more than one bot, you may set different names to separate them
+      "InstanceName": "PT Magic Development", // The name of the instance of this bot. This will be used in your monitor and your Telegram messages. In case you are running more than one bot, you may set different names to separate them
+      "CoinMarketCapAPIKey": "" //CoinMarketCap ApiKey
     },
     "Monitor": {
       "IsPasswordProtected": true, // Defines if your monitor will be asking to setup a password on its first start

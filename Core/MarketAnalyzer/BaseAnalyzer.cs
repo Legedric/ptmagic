@@ -11,10 +11,14 @@ using Core.Main.DataObjects.PTMagicData;
 
 namespace Core.MarketAnalyzer {
   public class BaseAnalyzer {
-    public static Dictionary<string, dynamic> GetJsonFromURL(string url, LogHelper log) {
+    public static Dictionary<string, dynamic> GetJsonFromURL(string url, LogHelper log, string api) {
       Dictionary<string, dynamic> jsonObject = null;
 
       HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+      if (api != ""){
+        request.Headers.Add("X-CMC_PRO_API_KEY", api);
+      }
+
       request.ContentType = "application/json";
       request.UserAgent = "PTMagic.Import";
       request.KeepAlive = true;

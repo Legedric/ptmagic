@@ -18,7 +18,7 @@ namespace Core.MarketAnalyzer {
         string baseUrl = "https://bittrex.com/api/v1.1/public/getmarketsummary?market=USDT-" + mainMarket;
 
         log.DoLogInfo("Bittrex - Getting main market price...");
-        Dictionary<string, dynamic> jsonObject = GetJsonFromURL(baseUrl, log);
+        Dictionary<string, dynamic> jsonObject = GetJsonFromURL(baseUrl, log, "");
         if (jsonObject.Count > 0) {
           if (jsonObject["success"]) {
             log.DoLogInfo("Bittrex - Market data received for USDT-" + mainMarket);
@@ -43,7 +43,7 @@ namespace Core.MarketAnalyzer {
         string baseUrl = "https://bittrex.com/api/v2.0/pub/markets/GetMarketSummaries";
 
         log.DoLogInfo("Bittrex - Getting market data...");
-        Dictionary<string, dynamic> jsonObject = GetJsonFromURL(baseUrl, log);
+        Dictionary<string, dynamic> jsonObject = GetJsonFromURL(baseUrl, log, "");
         if (jsonObject.Count > 0) {
           if (jsonObject["success"]) {
             log.DoLogInfo("Bittrex - Market data received for " + jsonObject["result"].Count.ToString() + " currencies");
@@ -124,7 +124,7 @@ namespace Core.MarketAnalyzer {
         string baseUrl = "https://bittrex.com/Api/v2.0/pub/market/GetTicks?tickInterval=oneMin&marketName=" + marketName;
 
         log.DoLogDebug("Bittrex - Getting ticks for '" + marketName + "'...");
-        Dictionary<string, dynamic> jsonObject = GetJsonFromURL(baseUrl, log);
+        Dictionary<string, dynamic> jsonObject = GetJsonFromURL(baseUrl, log, "");
         if (jsonObject.Count > 0) {
           if (jsonObject["success"]) {
             if (jsonObject["result"] != null) {

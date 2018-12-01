@@ -534,7 +534,17 @@ namespace Core.Main {
           this.Log.DoLogError("Profit Trailer directory not found (" + this.PTMagicConfiguration.GeneralSettings.Application.ProfitTrailerPath + ")");
           result = false;
         }
-      } else {
+
+        // Check for CoinMarketCap API Key
+        if (!this.PTMagicConfiguration.GeneralSettings.Application.CoinMarketCapAPIKey.Equals("")) {
+        this.Log.DoLogInfo("CoinMarketCap API KEY found");
+        } 
+        else {
+        this.Log.DoLogInfo("No CoinMarketCap API KEY specified! You can't use CoinMarketCap in your settings.analyzer.json");
+        }
+      } 
+      
+      else {
         this.Log.DoLogWarn("PTMagic disabled, shutting down...");
         result = false;
       }
@@ -956,8 +966,11 @@ namespace Core.Main {
     }
 
     private void BuildMarketData() {
+
+      if (!this.PTMagicConfiguration.GeneralSettings.Application.CoinMarketCapAPIKey.Equals("")) {
       // Get most recent market data from CMC
       string cmcMarketDataResult = CoinMarketCap.GetMarketData(this.PTMagicConfiguration, this.Log);
+      }
 
       if (this.PTMagicConfiguration.GeneralSettings.Application.Exchange.Equals("Bittrex", StringComparison.InvariantCultureIgnoreCase)) {
 
