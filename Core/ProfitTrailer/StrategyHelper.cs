@@ -58,6 +58,15 @@ namespace Core.ProfitTrailer {
         case "stochrsi":
           result = "SRSI";
           break;
+        case "stochrsik":
+          result = "SRSIK";
+          break;
+        case "stochrsid":
+          result = "SRSID";
+          break;
+        case "stochrsicross":
+          result = "SRSIC";
+          break;
         case "macd":
           result = "MACD";
           break;
